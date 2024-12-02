@@ -1,0 +1,41 @@
+{
+  "name": "gym-management-backend",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Gym management backend",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "nodemon start",
+    "lint:js": "./node_modules/.bin/eslint \"**/*.js\""
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "http-errors": "^2.0.0",
+    "jade": "^1.11.0",
+    "mongoose": "^8.8.3",
+    "mongoose-long": "^0.8.0",
+    "morgan": "^1.10.0",
+    "node-fetch": "^3.3.2",
+    "redis": "^4.7.0",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "eslint": "^8.57.1",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.6.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^1.19.1",
+    "prettierrc": "^0.0.0-5"
+  }
+}
