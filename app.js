@@ -7,6 +7,7 @@ const cors = require('cors');
 const mongo = require('./mongo');
 
 const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.set('view engine', 'jade');
 app.use(cors());
 
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
 
 const createError = (status) => {
     const err = new Error('Not Found');
