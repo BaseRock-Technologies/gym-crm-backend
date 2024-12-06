@@ -46,9 +46,9 @@ router.post('/signin', async (req, res) => {
 router.post('/createAdmin', authenticate, async (req, res) => {
     try {
         const { userName, password } = req.body.myData;
+        return res.status(200).send({ status: 'success' });
         const hash = hashSync(password, 12);
         await adminModel.insertMany({ userName, password, hash });
-        return res.status(200).send({ status: 'success' });
     } catch (error) {
         console.log("Error in auth route::/createAdmin", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });

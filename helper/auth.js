@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const authenticate = async (req, res, next) => {
     try {
         const { authToken } = req.body.myData;
-
         if (!authToken) {
             return res.status(401).send({ message: 'Access Denied', status: 'unauthorized' });
         }
@@ -14,8 +13,9 @@ const authenticate = async (req, res, next) => {
             return res.status(401).send({ message: 'Access Denied', status: 'unauthorized' });
         }
 
-        const decodedData = jwt.verify(authToken, process.env.SECRET_KEY);
-        if (!decodedData) {
+        try {
+            jwt.verify(authToken, process.env.SECRET_KEY);
+        } catch (error) {
             return res.status(401).send({ message: 'Access Denied', status: 'unauthorized' });
         }
 
