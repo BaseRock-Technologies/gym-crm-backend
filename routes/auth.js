@@ -4,7 +4,7 @@ const router = express.Router();
 
 const { hashSync, compareSync } = require("bcrypt");
 const { adminModel } = require('../models/admin.model');
-const { AES, enc } = require("crypto-js");
+const jwt = require("jsonwebtoken");
 
 router.post('/signin', async (req, res) => {
     try {
@@ -24,7 +24,10 @@ router.post('/signin', async (req, res) => {
             return res.send({ message: 'access_denied', status: 'error' });
         }
 
-        return res.send({ status: 'success', message: 'Authentication successful' });
+        const data = { userName: userData.userName, password: userData.password };
+        const token = jwt.sign(data, process.env.SECRET_KEY, { expiresIn: '1d' });
+
+        return res.send({ status: 'success', message: 'Authentication successful', token });
     } catch (error) {
         console.log("Error in auth route::/signin", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
