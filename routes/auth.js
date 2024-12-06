@@ -5,6 +5,8 @@ const router = express.Router();
 const { hashSync, compareSync } = require("bcrypt");
 const { adminModel } = require('../models/admin.model');
 const jwt = require("jsonwebtoken");
+const { authModel } = require('../models/auth.model');
+const { authenticate } = require('../helper/auth');
 
 router.post('/signin', async (req, res) => {
     try {
@@ -21,20 +23,27 @@ router.post('/signin', async (req, res) => {
 
         const isValidPassword = compareSync(password, userData.hash);
         if (!isValidPassword) {
-            return res.send({ message: 'access_denied', status: 'error' });
+            return res.send({ message: 'Access Denied', status: 'unauthorized' });
         }
 
-        const data = { userName: userData.userName, password: userData.password };
-        const token = jwt.sign(data, process.env.SECRET_KEY, { expiresIn: '1d' });
+        const data = { userName: userData.userName, password };
+        const authToken = jwt.sign(data, process.env.SECRET_KEY, { expiresIn: '1d' });
 
-        return res.send({ status: 'success', message: 'Authentication successful', token });
+
+        await authModel.findOneAndUpdate(
+            { userName: userData.userName },
+            { $set: { authToken, createdAt: new Date() } },
+            { upsert: true },
+        );
+
+        return res.send({ status: 'success', message: 'Authentication successful', authToken });
     } catch (error) {
         console.log("Error in auth route::/signin", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
     }
 });
 
-router.post('/createAdmin', async (req, res) => {
+router.post('/createAdmin', authenticate, async (req, res) => {
     try {
         const { userName, password } = req.body.myData;
         const hash = hashSync(password, 12);
