@@ -7,11 +7,20 @@ const adminSchema = new Schema({
         type: String,
         required: true,
     },
+    email: {
+        type: String,
+        required: true,
+    },
+    mobile: {
+        type: Number,
+        required: true,
+    },
     hash: {
         type: String,
         required: true,
     },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
+    updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
 
