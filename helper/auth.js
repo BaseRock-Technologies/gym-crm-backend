@@ -9,6 +9,7 @@ const authenticate = async (req, res, next) => {
         }
 
         const isExists = await authModel.exists({ authToken })
+        console.log(isExists)
         if (!isExists) {
             return res.status(401).send({ message: 'Access Denied', status: 'unauthorized' });
         }

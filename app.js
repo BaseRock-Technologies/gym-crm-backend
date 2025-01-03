@@ -8,6 +8,8 @@ const mongo = require('./mongo');
 
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
+const billRouter = require('./routes/bills');
+const defaultRouter = require('./routes/default');
 
 const app = express();
 
@@ -33,6 +35,8 @@ app.use(cors());
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
+app.use('/bills', billRouter);
+app.use('/default', defaultRouter);
 
 const createError = (status) => {
     const err = new Error('Not Found');
