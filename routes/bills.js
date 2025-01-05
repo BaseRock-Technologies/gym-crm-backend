@@ -4,30 +4,37 @@ const router = express.Router();
 
 
 const { authenticate } = require("../helper/auth");
-const { clientModel } = require("../models/client.model");
-const { clientSourceModel, packageModel, taxCategoryModel, paymentMethodModel } = require("../models/select.model");
+const { clientMembershipModel } = require("../models/client.model");
+const { clientSourceModel, packageModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel } = require("../models/select.model");
+const { groupTheArrayOn } = require('../helper/steroids');
 
 router.post('/gym-bill', authenticate, async (req, res) => {
     try {
-        const clientDetails = await clientModel.distinct("clientName");
-        const contactNumbers = await clientModel.distinct("contactNumber");
-        const clientDetailsMapped = clientDetails.map((name, index) => ({
-            clientName: name,
-            contactNumber: contactNumbers[index]
-        }));
-        const clientSourceDetails = await clientSourceModel.find({});
-        const packageDetails = await packageModel.find({});
-        const taxDetails = await taxCategoryModel.find({});
-        const paymentMethod = await paymentMethodModel.find({});
+        let clientDetails = await clientModel.find({}, { email: 0, createdAt: 0, createdBy: 0, __v: 0 });
+        clientDetails = clientDetails.reduce((acc, val) => { acc.default.push(val); return acc; }, { default: [] })
+        const clientSourceDetails = await clientSourceModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
+        const paymentMethod = await paymentMethodModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
+
+        let packageDetails = await packageModel.find({ showOnWebsite: true }, { createdAt: 0, createdBy: 0, __v: 0, status: 0, showOnWebsite: 0 });
+        packageDetails = groupTheArrayOn(packageDetails, "category");
+        let taxDetails = await taxCategoryModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
+        taxDetails = groupTheArrayOn(taxDetails, "category");
+
+        const trainersDetails = await trainersModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
+
+        const groupedClientSourceDetails = groupTheArrayOn(clientSourceDetails);
+        const groupedPaymentMethod = groupTheArrayOn(paymentMethod);
+        const groupedTrainersDetails = groupTheArrayOn(trainersDetails);
 
         const billId = await clientModel.countDocuments();
         const data = {
             billId: billId + 1,
-            clientDetails: clientDetailsMapped,
-            clientSourceDetails,
+            clientDetails,
+            clientSourceDetails: groupedClientSourceDetails,
             packageDetails,
             taxDetails,
-            paymentMethod,
+            paymentMethod: groupedPaymentMethod,
+            trainersDetails: groupedTrainersDetails,
         }
         return res.send({ status: 'success', data, message: 'Fetched successfully' });
     } catch (error) {

@@ -215,7 +215,7 @@ router.post('/add-data', async (req, res) => {
                 model: trainersModel,
                 data: [
                     {
-                        trainerName: "Hari",
+                        trainer: "Hari",
                         createdBy: "Admin",
                         createdAt: 1735866494,
                     },

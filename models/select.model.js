@@ -83,8 +83,27 @@ const paymentMethodSchema = new Schema({
 });
 
 const trainerSchema = new Schema({
-    trainerName: {
+    trainer: {
         type: String,
+        required: true,
+    },
+    createdBy: {
+        type: String,
+        required: true,
+    },
+    createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
+});
+
+const clientSchema = new Schema({
+    clientName: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+    },
+    contactNumber: {
+        type: Number,
         required: true,
     },
     createdBy: {
@@ -101,7 +120,8 @@ const packageModel = model('packageCategory', packageSchema, 'packageCategory');
 const taxCategoryModel = model('taxCategory', taxSchema, 'taxCategory');
 const paymentMethodModel = model('paymentMethods', paymentMethodSchema, 'paymentMethods');
 const trainersModel = model('trainers', trainerSchema, 'trainers');
+const clientModel = model('clients', clientSchema, 'clients');
 
 
 
-module.exports = { clientSourceModel, packageModel, taxCategoryModel, paymentMethodModel, trainersModel };
+module.exports = { clientSourceModel, packageModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel };

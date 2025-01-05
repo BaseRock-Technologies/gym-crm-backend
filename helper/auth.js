@@ -9,17 +9,17 @@ const authenticate = async (req, res, next) => {
         }
 
         const isExists = await authModel.exists({ authToken })
-        console.log(isExists)
         if (!isExists) {
             return res.status(401).send({ message: 'Access Denied', status: 'unauthorized' });
         }
 
         try {
             jwt.verify(authToken, process.env.SECRET_KEY);
+            const { userName } = jwt.decode(authToken);
+            req.headers.userName = userName;
         } catch (error) {
             return res.status(401).send({ message: 'Access Denied', status: 'unauthorized' });
         }
-
         next();
     } catch (error) {
         console.log("Error in auth middleware::authenticate", error);

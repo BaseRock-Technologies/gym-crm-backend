@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const { Schema, model } = mongoose;
 
-const clientSchema = new Schema({
+const clientMembership = new Schema({
     // personal info
     memberId: {
         type: Number,
@@ -118,6 +118,6 @@ const clientSchema = new Schema({
 });
 
 
-const clientModel = model('clients', clientSchema, 'clients');
+const clientMembershipModel = model('memberships', clientMembership, 'memberships');
 
-module.exports = { clientModel };
+module.exports = { clientMembershipModel };

@@ -9,6 +9,7 @@ const mongo = require('./mongo');
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const billRouter = require('./routes/bills');
+const clientRouter = require('./routes/clients');
 const defaultRouter = require('./routes/default');
 
 const app = express();
@@ -37,6 +38,7 @@ app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/bills', billRouter);
 app.use('/default', defaultRouter);
+app.use('/client', clientRouter);
 
 const createError = (status) => {
     const err = new Error('Not Found');
