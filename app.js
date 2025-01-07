@@ -10,6 +10,9 @@ const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const billRouter = require('./routes/bills');
 const clientRouter = require('./routes/clients');
+const packageRouter = require('./routes/package');
+const othersRouter = require('./routes/others');
+
 const defaultRouter = require('./routes/default');
 
 const app = express();
@@ -37,8 +40,12 @@ app.use(cors());
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/bills', billRouter);
-app.use('/default', defaultRouter);
 app.use('/client', clientRouter);
+app.use('/package', packageRouter);
+app.use('/package', packageRouter);
+app.use('/others', othersRouter);
+
+app.use('/default', defaultRouter);
 
 const createError = (status) => {
     const err = new Error('Not Found');

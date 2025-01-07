@@ -4,9 +4,9 @@ const router = express.Router();
 
 
 const { authenticate } = require("../helper/auth");
-const { clientMembershipModel } = require("../models/client.model");
-const { clientSourceModel, packageModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel } = require("../models/select.model");
+const { clientSourceModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel } = require("../models/others.model");
 const { groupTheArrayOn } = require('../helper/steroids');
+const { packageModel } = require('../models/package.model');
 
 router.post('/gym-bill', authenticate, async (req, res) => {
     try {

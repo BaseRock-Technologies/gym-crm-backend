@@ -1,5 +1,6 @@
 const express = require('express');
-const { clientSourceModel, packageModel, paymentMethodModel, trainersModel, taxCategoryModel } = require('../models/select.model');
+const { clientSourceModel, paymentMethodModel, trainersModel, taxCategoryModel } = require('../models/others.model');
+const { packageModel } = require('../models/package.model');
 
 const router = express.Router();
 
