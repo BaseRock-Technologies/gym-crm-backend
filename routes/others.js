@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
-const { clientSourceModel, paymentMethodModel, taxCategoryModel } = require('../models/others.model');
+const { clientSourceModel, paymentMethodModel, taxCategoryModel, trainersModel } = require('../models/others.model');
 
 const router = express.Router();
 
@@ -19,24 +19,45 @@ router.post('/client-source/create', authenticate, async (req, res) => {
             createdBy: req.headers.userName,
         };
         await clientSourceModel.create(data);
-        return res.send({ status: 'success', exists: false, message: 'CLient Source Added successfully' });
+        return res.send({ status: 'success', exists: false, message: 'Client Source Added successfully' });
     } catch (error) {
         console.log("Error in auth route::/others/client-source/create", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
     }
 });
 
+router.post('/trainer/create', authenticate, async (req, res) => {
+    try {
+        const { trainer } = req.body.myData;
+
+        const existingSource = await trainersModel.findOne({ trainer });
+        if (existingSource) {
+            return res.send({ status: 'success', exists: true, message: "Trainer Already Exists" });
+        }
+
+        const data = {
+            trainer,
+            createdBy: req.headers.userName,
+        };
+        await trainersModel.create(data);
+        return res.send({ status: 'success', exists: false, message: 'Trainer Added successfully' });
+    } catch (error) {
+        console.log("Error in auth route::/others/trainer/create", error);
+        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
+
 router.post('/payment-method/create', authenticate, async (req, res) => {
     try {
-        const { method } = req.body.myData;
+        const { paymentMode } = req.body.myData;
 
-        const existingSource = await paymentMethodModel.findOne({ method });
+        const existingSource = await paymentMethodModel.findOne({ paymentMode });
         if (existingSource) {
             return res.send({ status: 'success', exists: true, message: "Payment Method Already Exists" });
         }
 
         const data = {
-            method,
+            paymentMode,
             createdBy: req.headers.userName,
         };
         await paymentMethodModel.create(data);
@@ -51,7 +72,7 @@ router.post('/tax/create', authenticate, async (req, res) => {
     try {
         const { taxName, chargesPercentage, category } = req.body.myData;
 
-        const existingSource = await taxCategoryModel.findOne({ taxName });
+        const existingSource = await taxCategoryModel.findOne({ taxName, category });
         if (existingSource) {
             return res.send({ status: 'success', exists: true, message: "Tax Already Exists" });
         }

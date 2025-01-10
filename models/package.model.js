@@ -7,7 +7,7 @@ const packageSchema = new Schema({
         type: String,
         required: true,
     },
-    price: {
+    packagePrice: {
         type: Number,
         required: true,
     },

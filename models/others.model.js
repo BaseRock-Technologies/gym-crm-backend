@@ -35,7 +35,7 @@ const taxSchema = new Schema({
 });
 
 const paymentMethodSchema = new Schema({
-    method: {
+    paymentMode: {
         type: String,
         required: true,
     },

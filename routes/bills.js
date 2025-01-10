@@ -7,6 +7,7 @@ const { authenticate } = require("../helper/auth");
 const { clientSourceModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel } = require("../models/others.model");
 const { groupTheArrayOn } = require('../helper/steroids');
 const { packageModel } = require('../models/package.model');
+const { clientMembershipModel } = require('../models/client.model');
 
 router.post('/gym-bill', authenticate, async (req, res) => {
     try {
@@ -26,7 +27,7 @@ router.post('/gym-bill', authenticate, async (req, res) => {
         const groupedPaymentMethod = groupTheArrayOn(paymentMethod);
         const groupedTrainersDetails = groupTheArrayOn(trainersDetails);
 
-        const billId = await clientModel.countDocuments();
+        const billId = await clientMembershipModel.find({ billType: "gym-membership" }).countDocuments();
         const data = {
             billId: billId + 1,
             clientDetails,
@@ -39,6 +40,20 @@ router.post('/gym-bill', authenticate, async (req, res) => {
         return res.send({ status: 'success', data, message: 'Fetched successfully' });
     } catch (error) {
         console.log("Error in auth route::/bills/gym-bill", error);
+        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
+
+router.post('/gym-bill/create', authenticate, async (req, res) => {
+    try {
+        const data = req.body.myData;
+        delete data.authToken;
+        data.createdBy = req.headers.userName;
+        data.billType = "gym-membership";
+        await clientMembershipModel.create(data)
+        return res.send({ status: 'success', message: 'Bill Created successfully' });
+    } catch (error) {
+        console.log("Error in auth route::/bills/gym-bill/create", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
     }
 });

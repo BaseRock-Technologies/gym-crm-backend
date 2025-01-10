@@ -6,21 +6,21 @@ const router = express.Router();
 
 router.post('/create', authenticate, async (req, res) => {
     try {
-        const { package, price, durationInDays, status, showOnWebsite } = req.body.myData;
+        const { packageName, price, durationInDays, status, maxDiscount, showOnWebsite, category = "default", } = req.body.myData;
 
-        const existingPackage = await packageModel.findOne({ package });
+        const existingPackage = await packageModel.findOne({ package: packageName });
         if (existingPackage) {
             return res.send({ status: 'success', exists: true, message: "Package Already Exists" });
         }
 
         const data = {
-            package,
+            package: packageName,
             price,
             durationInDays,
             status,
             showOnWebsite,
-            maxDiscount: 2000,
-            category: "default",
+            maxDiscount,
+            category,
             createdBy: req.headers.userName,
         };
         await packageModel.create(data);

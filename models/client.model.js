@@ -10,7 +10,6 @@ const clientMembership = new Schema({
     },
     invoiceDate: {
         type: String,
-        required: true,
     },
     clientName: {
         type: String,
@@ -20,15 +19,14 @@ const clientMembership = new Schema({
         type: Number,
         required: true,
     },
-    alternateContactNumber: {
+    alternateContact: {
         type: Number,
     },
     email: {
         type: String,
     },
     clientSource: {
-        type: Schema.Types.ObjectId,
-        ref: 'ClientSource',
+        type: String,
     },
     gender: {
         type: String,
@@ -43,10 +41,15 @@ const clientMembership = new Schema({
         type: String,
     },
     taxId: {
-        type: String,
+        type: Number,
     },
     workoutHours: {
-        type: [String],
+        morning: {
+            type: String,
+        },
+        evening: {
+            type: String,
+        },
     },
     address: {
         type: String,
@@ -59,30 +62,31 @@ const clientMembership = new Schema({
     },
 
     // package Info
-    package: {
-        type: Schema.Types.ObjectId,
-        ref: 'packageCategory',
+    packageName: {
+        type: String,
     },
+    packagePrice: {
+        type: Number,
+    },
+
     joiningDate: {
         type: Number,
-        required: true,
     },
     endDate: {
         type: Number,
-        required: true,
     },
-    discountPercentage: {
+    discount: {
         type: Number,
     },
-    discountPrice: {
+    discountAmount: {
         type: Number,
     },
     admissionCharges: {
         type: Number,
     },
-    tax: {
-        type: Schema.Types.ObjectId,
-        ref: 'taxCategory',
+    taxName: {
+        type: String,
+
     },
     amountPayable: {
         type: Number,
@@ -90,20 +94,30 @@ const clientMembership = new Schema({
     amountPaid: {
         type: Number,
     },
-    paymentMethod: {
-        type: Schema.Types.ObjectId,
-        ref: 'paymentMethods',
+    paymentMode: {
+        type: String,
+
     },
-    amountBalance: {
+    balanceAmount: {
         type: Number,
+    },
+    amount: {
+        type: Number,
+    },
+    followUpDate: {
+        type: String,
+    },
+    amountStatus: {
+        type: String,
+    },
+    paymentMethodDetail: {
+        type: String,
     },
     clientRepresentative: {
         type: String,
-        required: true,
     },
     trainer: {
-        type: Schema.Types.ObjectId,
-        ref: 'trainers',
+        type: String,
     },
     sendTextAndEmail: {
         type: Boolean,
@@ -112,6 +126,24 @@ const clientMembership = new Schema({
     sendWhatsapp: {
         type: Boolean,
         default: false,
+    },
+    createdBy: {
+        type: String,
+        required: true,
+    },
+    billType: {
+        type: String,
+        required: true,
+        enum: ['gym-membership', 'personal-training', 'group-class'],
+    },
+    chequeNumber: {
+        type: String,
+    },
+    chequeDate: {
+        type: String,
+    },
+    chequeDate: {
+        type: String,
     },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
     updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
