@@ -41,15 +41,14 @@ const clientMembership = new Schema({
         type: String,
     },
     taxId: {
-        type: Number,
+        type: String,
     },
-    workoutHours: {
-        morning: {
-            type: String,
-        },
-        evening: {
-            type: String,
-        },
+    workoutHourmorning: {
+        type: String,
+    },
+
+    workoutHourevening: {
+        type: String,
     },
     address: {
         type: String,
