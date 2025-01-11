@@ -70,6 +70,9 @@ const clientSchema = new Schema({
         type: Number,
         required: true,
     },
+    memberId: {
+        type: Number,
+    },
     createdBy: {
         type: String,
         required: true,

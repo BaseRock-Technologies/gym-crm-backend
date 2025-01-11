@@ -11,6 +11,7 @@ const { clientMembershipModel } = require('../models/client.model');
 
 router.post('/options', authenticate, async (req, res) => {
     try {
+        const { billType } = req.body.myData;
         let clientDetails = await clientModel.find({}, { email: 0, createdAt: 0, createdBy: 0, __v: 0 });
         clientDetails = clientDetails.reduce((acc, val) => { acc.default.push(val); return acc; }, { default: [] })
         const clientSourceDetails = await clientSourceModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
@@ -27,7 +28,7 @@ router.post('/options', authenticate, async (req, res) => {
         const groupedPaymentMethod = groupTheArrayOn(paymentMethod);
         const groupedTrainersDetails = groupTheArrayOn(trainersDetails);
 
-        const billId = await clientMembershipModel.find({ billType: "gym-membership" }).countDocuments();
+        const billId = await clientMembershipModel.find({ billType }).countDocuments();
         const data = {
             billId: billId + 1,
             clientDetails,
@@ -49,6 +50,11 @@ router.post('/create', authenticate, async (req, res) => {
         const data = req.body.myData;
         data.createdBy = req.headers.userName;
         data.billType = data.billType;
+        if (data.billType === "gym-membership") {
+            const { clientName,
+                contactNumber, memberId } = data;
+            await clientModel.updateOne({ contactNumber, clientName }, { $set: { memberId } })
+        }
         await clientMembershipModel.create(data)
         return res.send({ status: 'success', message: 'Bill Created successfully' });
     } catch (error) {
@@ -77,6 +83,8 @@ router.patch('/update', authenticate, async (req, res) => {
     try {
         const { billId, billType } = req.body.myData;
         const data = req.body.myData;
+
+
 
         const existingBill = await clientMembershipModel.findOne({ memberId: billId, billType });
         if (!existingBill) {

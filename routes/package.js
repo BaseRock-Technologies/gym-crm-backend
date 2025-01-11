@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/create', authenticate, async (req, res) => {
     try {
-        const { packageName, price, durationInDays, status, maxDiscount, showOnWebsite, category = "default", } = req.body.myData;
+        const { packageName, packagePrice, durationInDays, status, maxDiscount, showOnWebsite, category = "default", } = req.body.myData;
 
         const existingPackage = await packageModel.findOne({ package: packageName });
         if (existingPackage) {
@@ -15,7 +15,7 @@ router.post('/create', authenticate, async (req, res) => {
 
         const data = {
             package: packageName,
-            price,
+            packagePrice,
             durationInDays,
             status,
             showOnWebsite,

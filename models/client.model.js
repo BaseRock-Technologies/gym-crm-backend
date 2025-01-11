@@ -95,7 +95,9 @@ const clientMembership = new Schema({
     },
     paymentMode: {
         type: String,
-
+    },
+    sessions: {
+        type: String,
     },
     balanceAmount: {
         type: Number,

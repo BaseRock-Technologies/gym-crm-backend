@@ -9,7 +9,6 @@ router.post('/create', authenticate, async (req, res) => {
         const { clientName, contactNumber, email } = req.body.myData;
 
         const existingClient = await clientModel.findOne({ clientName, contactNumber });
-        console.log(existingClient)
         if (existingClient) {
             return res.send({ status: 'success', exists: true, message: "Client Already Exists" });
         }
