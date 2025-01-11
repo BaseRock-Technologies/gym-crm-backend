@@ -6,6 +6,7 @@ const sleep = require('util').promisify(setTimeout);
         // Run the server script as a child process and return console output
         const proc = spawn('npm', ['start'], {
             stdio: 'inherit',
+            shell: true,
         });
 
         // Wait for the server to finish (or crash)
