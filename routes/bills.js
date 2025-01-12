@@ -11,7 +11,6 @@ const { clientMembershipModel } = require('../models/client.model');
 
 router.post('/options', authenticate, async (req, res) => {
     try {
-        const { billType } = req.body.myData;
         let clientDetails = await clientModel.find({}, { email: 0, createdAt: 0, createdBy: 0, __v: 0 });
         clientDetails = clientDetails.reduce((acc, val) => { acc.default.push(val); return acc; }, { default: [] })
         const clientSourceDetails = await clientSourceModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
@@ -28,7 +27,7 @@ router.post('/options', authenticate, async (req, res) => {
         const groupedPaymentMethod = groupTheArrayOn(paymentMethod);
         const groupedTrainersDetails = groupTheArrayOn(trainersDetails);
 
-        const billId = await clientMembershipModel.find({ billType }).countDocuments();
+        const billId = await clientMembershipModel.find({}).countDocuments();
         const data = {
             billId: billId + 1,
             clientDetails,
@@ -67,9 +66,13 @@ router.post('/details', authenticate, async (req, res) => {
     try {
         const { billId, billType } = req.body.myData;
 
-        const existingBill = await clientMembershipModel.find({ memberId: billId, billType }, { createdBy: 0, createdAt: 0, updatedAt: 0, __v: 0, _id: 0, billType: 0 });
+        const existingBill = await clientMembershipModel
+            .find({ memberId: billId, billType }, { createdBy: 0, createdAt: 0, updatedAt: 0, __v: 0, _id: 0, billType: 0 })
+            .sort({ createdAt: -1 });
+
+
         if (!existingBill) {
-            return res.status(404).send({ status: 'error', message: 'Data not found' });
+            return res.send({ status: 'error', message: 'Data not found' });
         }
 
         return res.send({ status: 'success', data: existingBill[0], message: 'Bill fetched successfully' });
@@ -88,13 +91,13 @@ router.patch('/update', authenticate, async (req, res) => {
 
         const existingBill = await clientMembershipModel.findOne({ memberId: billId, billType });
         if (!existingBill) {
-            return res.status(404).send({ status: 'error', message: 'Data not found' });
+            return res.send({ status: 'error', message: 'Data not found' });
         }
 
         const updateResult = await clientMembershipModel.updateOne({ memberId: billId, billType }, { $set: data });
         console.log(updateResult)
         if (updateResult.nModified === 0) {
-            return res.status(400).send({ status: 'error', message: 'No changes made to the bill' });
+            return res.send({ status: 'error', message: 'No changes made to the bill' });
         }
 
         return res.send({ status: 'success', message: 'Bill updated successfully' });

@@ -11,10 +11,15 @@ const adminSchema = new Schema({
         type: String,
         required: true,
     },
+    role: {
+        type: String,
+        required: true,
+    },
     mobile: {
         type: Number,
         required: true,
     },
+
     hash: {
         type: String,
         required: true,
