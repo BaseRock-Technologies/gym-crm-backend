@@ -13,15 +13,21 @@ const packageSchema = new Schema({
     },
     durationInDays: {
         type: Number,
-        required: true,
+    },
+    packageValidity: {
+        type: Number,
+    },
+    packageSession: {
+        type: Number,
+    },
+    packageClassType: {
+        type: String,
     },
     maxDiscount: {
         type: Number,
-        required: true,
     },
     status: {
         type: String,
-        required: true,
     },
     createdBy: {
         type: String,
@@ -29,10 +35,12 @@ const packageSchema = new Schema({
     },
     showOnWebsite: {
         type: Boolean,
-        default: false,
+        default: true,
     },
+
     category: {
         type: String,
+        enum: ["GYM Packages", "PT Packages", "Group Class Packages"],
         required: true,
     },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },

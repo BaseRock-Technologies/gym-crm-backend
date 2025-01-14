@@ -12,6 +12,7 @@ const billRouter = require('./routes/bills');
 const clientRouter = require('./routes/clients');
 const packageRouter = require('./routes/package');
 const othersRouter = require('./routes/others');
+const inquiryRouter = require('./routes/inquiry');
 
 const defaultRouter = require('./routes/default');
 
@@ -44,6 +45,7 @@ app.use('/client', clientRouter);
 app.use('/package', packageRouter);
 app.use('/package', packageRouter);
 app.use('/others', othersRouter);
+app.use('/inquiry', inquiryRouter);
 
 app.use('/default', defaultRouter);
 

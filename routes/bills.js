@@ -16,7 +16,7 @@ router.post('/options', authenticate, async (req, res) => {
         const clientSourceDetails = await clientSourceModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
         const paymentMethod = await paymentMethodModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
 
-        let packageDetails = await packageModel.find({ showOnWebsite: true }, { createdAt: 0, createdBy: 0, __v: 0, status: 0, showOnWebsite: 0 });
+        let packageDetails = await packageModel.find({ showOnWebsite: true, category: "GYM Packages" }, { createdAt: 0, createdBy: 0, __v: 0, status: 0, showOnWebsite: 0 });
         packageDetails = groupTheArrayOn(packageDetails, "category");
         let taxDetails = await taxCategoryModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
         taxDetails = groupTheArrayOn(taxDetails, "category");

@@ -59,7 +59,6 @@ const clientMembership = new Schema({
     picture: {
         type: Buffer,
     },
-
     // package Info
     packageName: {
         type: String,
