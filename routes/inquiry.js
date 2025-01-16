@@ -1,7 +1,7 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { inquiryModel } = require('../models/inquiry.model');
-const { groupTheArrayOn } = require('../helper/steroids');
+const { groupTheArrayOn, formatTimestamp } = require('../helper/steroids');
 const { clientSourceModel, employeeModel } = require('../models/others.model');
 const { packageModel } = require('../models/package.model');
 
@@ -24,10 +24,62 @@ router.post('/records', authenticate, async (req, res) => {
         const offset = parseInt(req.query.offset) || 0;
         const limit = parseInt(req.query.limit) || 10;
 
-        const { filters } = req.body.myData;
+        const { filters, searchConfig } = req.body.myData;
+        const cleanFilters = { ...filters };
 
+        // Handle date range
+        if (filters['date-range']) {
+            const { from, to } = filters['date-range'];
+            cleanFilters.followUpDate = {
+                $gte: new Date(from).getTime() / 1000,
+                $lte: new Date(to).getTime() / 1000
+            };
+            delete cleanFilters['date-range'];
+        }
 
-        let records = await inquiryModel.find({ ...filters }, {
+        let searchQuery = cleanFilters;
+
+        if (searchConfig && searchConfig.searchTerm && searchConfig.searchableColumns?.length) {
+            const searchTerm = searchConfig.searchTerm.trim();
+            const searchConditions = searchConfig.searchableColumns.flatMap(column => {
+                if (column === 'name') {
+                    return [
+                        { firstName: { $regex: searchTerm, $options: 'i' } },
+                        { lastName: { $regex: searchTerm, $options: 'i' } }
+                    ];
+                }
+
+                if (column === 'contactNumber') {
+                    return !isNaN(searchTerm)
+                        ? [{ contactNumber: Number(searchTerm) }]
+                        : [];
+                }
+
+                return [{ [column]: { $regex: searchTerm, $options: 'i' } }];
+            });
+
+            if (searchConditions.length > 0) {
+                searchQuery = {
+                    ...cleanFilters,
+                    $or: searchConditions
+                };
+            }
+        }
+
+        const validFields = Object.keys(inquiryModel.schema.paths);
+        const finalQuery = {};
+
+        Object.entries(searchQuery).forEach(([key, value]) => {
+            if (key === '$or') {
+                finalQuery.$or = value.filter(condition => {
+                    const fieldName = Object.keys(condition)[0];
+                    return validFields.includes(fieldName) || fieldName === 'firstName' || fieldName === 'lastName';
+                });
+            } else if (validFields.includes(key)) {
+                finalQuery[key] = value;
+            }
+        });
+        let records = await inquiryModel.find(finalQuery, {
             firstName: 1,
             lastName: 1,
             contactNumber: 1,
@@ -45,14 +97,14 @@ router.post('/records', authenticate, async (req, res) => {
             name: `${record.firstName} ${record.lastName}`,
             contactNumber: record.contactNumber,
             inquiryFor: record.inquiryFor,
-            followUpDate: record.followUpDate,
+            followUpDate: formatTimestamp(record.followUpDate),
             attendedBy: record.attendedBy,
             status: record.status,
             convertibility: record.convertibility,
             _id: record._id
         }));
 
-        const total = await inquiryModel.countDocuments({});
+        const total = await inquiryModel.countDocuments(finalQuery);
 
         return res.send({
             status: 'success',

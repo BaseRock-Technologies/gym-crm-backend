@@ -9,6 +9,19 @@ const groupTheArrayOn = (arr, groupBy) => {
     }, {});
 }
 
+const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    const options = {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+    };
+
+    return date.toLocaleDateString('en-US', options).replace(',', '');
+};
+
+
 module.exports = {
     groupTheArrayOn,
+    formatTimestamp,
 }
