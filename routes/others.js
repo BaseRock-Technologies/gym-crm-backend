@@ -95,9 +95,9 @@ router.post('/employee/create', authenticate, async (req, res) => {
     try {
         const data = req.body.myData;
 
-        const existingEmployee = await employeeModel.findOne({ fullName: data.fullName });
+        const existingEmployee = await employeeModel.findOne({ fullName: data.fullName, contact: data.contact, gender: data.gender });
         if (existingEmployee) {
-            return res.send({ status: 'success', exists: true, message: "Employee Already Exists" });
+            return res.send({ status: 'info', exists: true, message: "Employee Already Exists" });
         }
         data.createdBy = req.headers.userName;
         await employeeModel.create(data);
