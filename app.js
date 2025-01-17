@@ -13,6 +13,9 @@ const clientRouter = require('./routes/clients');
 const packageRouter = require('./routes/package');
 const othersRouter = require('./routes/others');
 const inquiryRouter = require('./routes/inquiry');
+const feedbackRouter = require('./routes/feedback');
+const attendanceRouter = require('./routes/attendance');
+const clientFormRouter = require('./routes/client-form');
 
 const defaultRouter = require('./routes/default');
 
@@ -46,6 +49,9 @@ app.use('/package', packageRouter);
 app.use('/package', packageRouter);
 app.use('/others', othersRouter);
 app.use('/inquiry', inquiryRouter);
+app.use('/feedback', feedbackRouter);
+app.use('/client-form', clientFormRouter);
+app.use('/attendance', attendanceRouter);
 
 app.use('/default', defaultRouter);
 
