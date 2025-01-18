@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { hashSync, compareSync } = require("bcrypt");
+const { hashSync, compareSync } = require("bcryptjs");
 const { adminModel } = require('../models/admin.model');
 const jwt = require("jsonwebtoken");
 const { authModel, resetTokenModel } = require('../models/auth.model');
@@ -10,7 +10,7 @@ const { authenticate } = require('../helper/auth');
 
 router.post('/signin', async (req, res) => {
     try {
-        const { userName, password } = req.body.myData;
+        const { userName, password, role } = req.body.myData;
 
         if (!userName || !password) {
             return res.send({ message: 'Missing Required field(s)', status: 'error' });
@@ -26,7 +26,7 @@ router.post('/signin', async (req, res) => {
             return res.send({ message: 'Access Denied', status: 'unauthorized' });
         }
 
-        const data = { userName: userData.userName };
+        const data = { userName: userData.userName, role: userData.role };
         const authToken = jwt.sign(data, process.env.SECRET_KEY, { expiresIn: '1d' });
 
 
@@ -36,7 +36,7 @@ router.post('/signin', async (req, res) => {
             { upsert: true },
         );
 
-        return res.send({ status: 'success', message: 'Authentication successful', authToken });
+        return res.send({ status: 'success', message: 'Authentication successful', authToken, role: userData.role });
     } catch (error) {
         console.log("Error in auth route::/signin", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
@@ -114,12 +114,12 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
-// router.post('/createAdmin', authenticate, async (req, res) => {
+// router.post('/createAdmin', async (req, res) => {
 //     try {
-//         const { userName, password } = req.body.myData;
-//         return res.status(200).send({ status: 'success' });
+//         const { userName, password, role, email, mobile } = req.body.myData;
 //         const hash = hashSync(password, 12);
-//         await adminModel.insertMany({ userName, hash });
+//         await adminModel.insertMany({ userName, role, hash, email, mobile });
+//         return res.status(200).send({ status: 'success' });
 //     } catch (error) {
 //         console.log("Error in auth route::/createAdmin", error);
 //         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });

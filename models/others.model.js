@@ -70,6 +70,9 @@ const clientSchema = new Schema({
         type: Number,
         required: true,
     },
+    memberId: {
+        type: Number,
+    },
     createdBy: {
         type: String,
         required: true,
@@ -77,14 +80,65 @@ const clientSchema = new Schema({
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
-
+const employeeSchema = new Schema({
+    fullName: {
+        type: String,
+        required: true,
+    },
+    contact: {
+        type: Number,
+        required: true,
+    },
+    email: {
+        type: String,
+    },
+    dateOfBirth: {
+        type: String,
+    },
+    gender: {
+        type: String,
+        enum: ["Male", "Female"]
+    },
+    address: {
+        type: String,
+    },
+    employeeType: {
+        type: String,
+        enum: ["Sales Team", "Management", "Others"]
+    },
+    monthlySalary: {
+        type: Number
+    },
+    maxDiscount: {
+        type: Number
+    },
+    loginRequired: {
+        type: Boolean,
+        default: false,
+    },
+    setTraget: {
+        type: Boolean,
+        default: false,
+    },
+    status: {
+        type: String,
+        enum: ["Active", "Inactive"]
+    },
+    createdBy: {
+        type: String,
+        required: true,
+    },
+    profilePicture: {
+        type: String
+    },
+    createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
+});
 
 const clientSourceModel = model('clientSource', clientSourceSchema, 'clientSource');
 const taxCategoryModel = model('taxCategory', taxSchema, 'taxCategory');
 const paymentMethodModel = model('paymentMethods', paymentMethodSchema, 'paymentMethods');
 const trainersModel = model('trainers', trainerSchema, 'trainers');
 const clientModel = model('clients', clientSchema, 'clients');
+const employeeModel = model('employees', employeeSchema, 'employees');
 
-
-
-module.exports = { clientSourceModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel };
+module.exports = { clientSourceModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel, employeeModel };

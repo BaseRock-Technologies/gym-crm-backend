@@ -2,33 +2,27 @@ const mongoose = require('mongoose');
 
 const { Schema, model } = mongoose;
 
-const adminSchema = new Schema({
-    userName: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-    },
-    role: {
-        type: String,
-        required: true,
-    },
-    mobile: {
+const feedbackSchema = new Schema({
+    date: {
         type: Number,
         required: true,
     },
-
-    hash: {
+    name: {
+        type: String,
+        required: true,
+    },
+    contactNumber: {
+        type: Number,
+        required: true,
+    },
+    feedback: {
         type: String,
         required: true,
     },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
-    updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
 
-const adminModel = model('admin', adminSchema, 'admin');
+const feedbackModel = model('feedback', feedbackSchema, 'feedback');
 
-module.exports = { adminModel };
+module.exports = { feedbackModel };

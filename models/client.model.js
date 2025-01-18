@@ -59,7 +59,6 @@ const clientMembership = new Schema({
     picture: {
         type: Buffer,
     },
-
     // package Info
     packageName: {
         type: String,
@@ -95,7 +94,9 @@ const clientMembership = new Schema({
     },
     paymentMode: {
         type: String,
-
+    },
+    sessions: {
+        type: String,
     },
     balanceAmount: {
         type: Number,

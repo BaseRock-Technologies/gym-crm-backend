@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
-const { clientSourceModel, paymentMethodModel, taxCategoryModel, trainersModel } = require('../models/others.model');
+const { clientSourceModel, paymentMethodModel, taxCategoryModel, trainersModel, employeeModel } = require('../models/others.model');
 
 const router = express.Router();
 
@@ -87,6 +87,23 @@ router.post('/tax/create', authenticate, async (req, res) => {
         return res.send({ status: 'success', exists: false, message: 'Tax Added successfully' });
     } catch (error) {
         console.log("Error in auth route::/others/tax/create", error);
+        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
+
+router.post('/employee/create', authenticate, async (req, res) => {
+    try {
+        const data = req.body.myData;
+
+        const existingEmployee = await employeeModel.findOne({ fullName: data.fullName, contact: data.contact, gender: data.gender });
+        if (existingEmployee) {
+            return res.send({ status: 'info', exists: true, message: "Employee Already Exists" });
+        }
+        data.createdBy = req.headers.userName;
+        await employeeModel.create(data);
+        return res.send({ status: 'success', exists: false, message: 'Employee Created successfully' });
+    } catch (error) {
+        console.log("Error in auth route::/others/employee/create", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
     }
 });

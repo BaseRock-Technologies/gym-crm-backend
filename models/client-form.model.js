@@ -2,8 +2,12 @@ const mongoose = require('mongoose');
 
 const { Schema, model } = mongoose;
 
-const adminSchema = new Schema({
-    userName: {
+const clientFormSchema = new Schema({
+    date: {
+        type: Number,
+        required: true,
+    },
+    name: {
         type: String,
         required: true,
     },
@@ -11,24 +15,23 @@ const adminSchema = new Schema({
         type: String,
         required: true,
     },
-    role: {
+    documentName: {
         type: String,
         required: true,
     },
-    mobile: {
-        type: Number,
+    documentPath: {
+        type: String,
         required: true,
     },
-
-    hash: {
+    category: {
         type: String,
+        enum: ["personal-training", "trial-waiver", "physical-activity"],
         required: true,
     },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
-    updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
 
-const adminModel = model('admin', adminSchema, 'admin');
+const clientFormModel = model('clientForms', clientFormSchema, 'clientForms');
 
-module.exports = { adminModel };
+module.exports = { clientFormModel };

@@ -16,7 +16,7 @@ router.post('/options', authenticate, async (req, res) => {
         const clientSourceDetails = await clientSourceModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
         const paymentMethod = await paymentMethodModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
 
-        let packageDetails = await packageModel.find({ showOnWebsite: true }, { createdAt: 0, createdBy: 0, __v: 0, status: 0, showOnWebsite: 0 });
+        let packageDetails = await packageModel.find({ showOnWebsite: true, category: "GYM Packages" }, { createdAt: 0, createdBy: 0, __v: 0, status: 0, showOnWebsite: 0 });
         packageDetails = groupTheArrayOn(packageDetails, "category");
         let taxDetails = await taxCategoryModel.find({}, { createdAt: 0, createdBy: 0, __v: 0 });
         taxDetails = groupTheArrayOn(taxDetails, "category");
@@ -27,7 +27,7 @@ router.post('/options', authenticate, async (req, res) => {
         const groupedPaymentMethod = groupTheArrayOn(paymentMethod);
         const groupedTrainersDetails = groupTheArrayOn(trainersDetails);
 
-        const billId = await clientMembershipModel.find({ billType: "gym-membership" }).countDocuments();
+        const billId = await clientMembershipModel.find({}).countDocuments();
         const data = {
             billId: billId + 1,
             clientDetails,
@@ -49,6 +49,11 @@ router.post('/create', authenticate, async (req, res) => {
         const data = req.body.myData;
         data.createdBy = req.headers.userName;
         data.billType = data.billType;
+        if (data.billType === "gym-membership") {
+            const { clientName,
+                contactNumber, memberId } = data;
+            await clientModel.updateOne({ contactNumber, clientName }, { $set: { memberId } })
+        }
         await clientMembershipModel.create(data)
         return res.send({ status: 'success', message: 'Bill Created successfully' });
     } catch (error) {
@@ -61,9 +66,13 @@ router.post('/details', authenticate, async (req, res) => {
     try {
         const { billId, billType } = req.body.myData;
 
-        const existingBill = await clientMembershipModel.find({ memberId: billId, billType }, { createdBy: 0, createdAt: 0, updatedAt: 0, __v: 0, _id: 0, billType: 0 });
+        const existingBill = await clientMembershipModel
+            .find({ memberId: billId, billType }, { createdBy: 0, createdAt: 0, updatedAt: 0, __v: 0, _id: 0, billType: 0 })
+            .sort({ createdAt: -1 });
+
+
         if (!existingBill) {
-            return res.status(404).send({ status: 'error', message: 'Data not found' });
+            return res.send({ status: 'error', message: 'Data not found' });
         }
 
         return res.send({ status: 'success', data: existingBill[0], message: 'Bill fetched successfully' });
@@ -78,15 +87,17 @@ router.patch('/update', authenticate, async (req, res) => {
         const { billId, billType } = req.body.myData;
         const data = req.body.myData;
 
+
+
         const existingBill = await clientMembershipModel.findOne({ memberId: billId, billType });
         if (!existingBill) {
-            return res.status(404).send({ status: 'error', message: 'Data not found' });
+            return res.send({ status: 'error', message: 'Data not found' });
         }
 
         const updateResult = await clientMembershipModel.updateOne({ memberId: billId, billType }, { $set: data });
         console.log(updateResult)
         if (updateResult.nModified === 0) {
-            return res.status(400).send({ status: 'error', message: 'No changes made to the bill' });
+            return res.send({ status: 'error', message: 'No changes made to the bill' });
         }
 
         return res.send({ status: 'success', message: 'Bill updated successfully' });
