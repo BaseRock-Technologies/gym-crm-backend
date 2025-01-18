@@ -1,6 +1,7 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { clientFormModel } = require('../models/client-form.model');
+const { formatTimestamp } = require('../helper/steroids');
 
 const router = express.Router();
 
@@ -38,7 +39,7 @@ router.post('/records', authenticate, async (req, res) => {
                 };
             }
         }
-
+        console.log(category)
         const validFields = Object.keys(clientFormModel.schema.paths);
         const finalQuery = { category };
 
@@ -58,9 +59,9 @@ router.post('/records', authenticate, async (req, res) => {
             .limit(limit)
             .sort({ createdAt: -1 });
 
-        const formattedForms = clientForms.map(feedback => ({
-            ...clientForms.toObject(),
-            date: formatTimestamp(clientForms.date)
+        const formattedForms = clientForms.map(clientForm => ({
+            ...clientForm.toObject(),
+            date: formatTimestamp(clientForm.date)
         }));
 
         const total = await clientFormModel.countDocuments(finalQuery);

@@ -25,6 +25,11 @@ const attendanceSchema = new Schema({
     outTime: {
         type: Number,
     },
+    category: {
+        type: String,
+        required: true,
+        enum: ["clients", "trainers", "employees"]
+    },
     date: {
         type: Number,
         default: () => Math.floor(new Date().setHours(0, 0, 0, 0) / 1000)

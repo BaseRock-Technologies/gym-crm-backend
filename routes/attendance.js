@@ -10,8 +10,19 @@ router.post('/records', authenticate, async (req, res) => {
         const offset = parseInt(req.query.offset) || 0;
         const limit = parseInt(req.query.limit) || 10;
 
-        const { filters, searchConfig } = req.body.myData;
+        const { filters, searchConfig, category } = req.body.myData;
         const cleanFilters = { ...filters };
+
+        // Handle date range
+        if (filters && filters['date-range']) {
+            const { from, to } = filters['date-range'];
+            cleanFilters.date = {
+                $gte: new Date(from).getTime() / 1000,
+                $lte: new Date(to).getTime() / 1000
+            };
+            delete cleanFilters['date-range'];
+        }
+
 
         let searchQuery = cleanFilters;
 
@@ -30,7 +41,7 @@ router.post('/records', authenticate, async (req, res) => {
         }
 
         const validFields = Object.keys(attendanceModel.schema.paths);
-        const finalQuery = {};
+        const finalQuery = { category };
 
         Object.entries(searchQuery).forEach(([key, value]) => {
             if (key === '$or') {
@@ -47,6 +58,7 @@ router.post('/records', authenticate, async (req, res) => {
             .skip(offset * limit)
             .limit(limit)
             .sort({ createdAt: -1 });
+
 
         const formattedAttendance = attendanceRecords.map(attendance => ({
             ...attendance.toObject(),
@@ -73,7 +85,7 @@ router.post('/records', authenticate, async (req, res) => {
 
 router.post('/create', authenticate, async (req, res) => {
     try {
-        const { biometricId, name, memberId, contactNumber, type } = req.body.myData;
+        const { biometricId, name, memberId, contactNumber, category, type } = req.body.myData;
         if (!type) {
             return res.status(400).send({ status: 'error', message: 'Missing Type Field' });
         }
@@ -85,13 +97,14 @@ router.post('/create', authenticate, async (req, res) => {
                 name,
                 memberId,
                 contactNumber,
+                category,
                 inTime: Math.floor(new Date().getTime() / 1000),
                 date: todayDate,
             });
             return res.send({ status: 'success', message: 'Attendance Created Successfully', data: attendanceRecord });
         } else if (type === 'out') {
             const updatedRecord = await attendanceModel.findOneAndUpdate(
-                { biometricId, date: todayDate },
+                { biometricId, date: todayDate, category },
                 { outTime: Math.floor(new Date().getTime() / 1000) },
                 { new: true }
             );

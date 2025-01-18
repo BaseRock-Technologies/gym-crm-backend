@@ -28,7 +28,7 @@ router.post('/records', authenticate, async (req, res) => {
         const cleanFilters = { ...filters };
 
         // Handle date range
-        if (filters['date-range']) {
+        if (filters && filters['date-range']) {
             const { from, to } = filters['date-range'];
             cleanFilters.followUpDate = {
                 $gte: new Date(from).getTime() / 1000,
