@@ -9,5 +9,5 @@ services:
       - .:/app
     ports:
       - "5696:5696"
-    # env_file:
-    #   - .env.prod
+    env_file:
+      - .env.prod
