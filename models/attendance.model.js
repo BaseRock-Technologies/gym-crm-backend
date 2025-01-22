@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const { Schema, model } = mongoose;
 
-const attendanceSchema = new Schema({
+const clientAttendanceSchema = new Schema({
     biometricId: {
         type: Number,
         required: true,
@@ -28,7 +28,47 @@ const attendanceSchema = new Schema({
     category: {
         type: String,
         required: true,
-        enum: ["clients", "trainers", "employees"]
+        default: "clients"
+    },
+    date: {
+        type: Number,
+        default: () => Math.floor(new Date().setHours(0, 0, 0, 0) / 1000)
+    },
+    createdAt: { type: Number, default: () => Math.floor(new Date() / 1000) },
+});
+
+const employeeAttendanceSchema = new Schema({
+    employeeId: {
+        type: Number,
+        required: true,
+    },
+    employeeName: {
+        type: String,
+        required: true,
+    },
+    employeeNumber: {
+        type: Number,
+        required: true,
+    },
+    employeeEmail: {
+        type: String,
+    },
+    employeeDesignation: {
+        type: String,
+    },
+    employeeSalary: {
+        type: Number,
+    },
+    inTime: {
+        type: Number,
+    },
+    outTime: {
+        type: Number,
+    },
+    category: {
+        type: String,
+        required: true,
+        enum: ["trainers", "employees"]
     },
     date: {
         type: Number,
@@ -38,6 +78,7 @@ const attendanceSchema = new Schema({
 });
 
 
-const attendanceModel = model('attendance', attendanceSchema, 'attendance');
+const clientAttendanceModel = model('clientAttendance', clientAttendanceSchema, 'clientAttendance');
+const employeeAttendanceModel = model('employeeAttendance', employeeAttendanceSchema, 'employeeAttendance');
 
-module.exports = { attendanceModel };
+module.exports = { clientAttendanceModel, employeeAttendanceModel };

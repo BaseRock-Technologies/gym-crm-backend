@@ -93,7 +93,8 @@ router.post('/records', authenticate, async (req, res) => {
             .limit(limit)
             .sort({ createdAt: -1 });
 
-        records = records.map(record => ({
+        records = records.map((record, index) => ({
+            sno: index + 1,
             name: `${record.firstName} ${record.lastName}`,
             contactNumber: record.contactNumber,
             inquiryFor: record.inquiryFor,

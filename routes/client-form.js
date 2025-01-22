@@ -59,7 +59,8 @@ router.post('/records', authenticate, async (req, res) => {
             .limit(limit)
             .sort({ createdAt: -1 });
 
-        const formattedForms = clientForms.map(clientForm => ({
+        const formattedForms = clientForms.map((clientForm, index) => ({
+            sno: index + 1,
             ...clientForm.toObject(),
             date: formatTimestamp(clientForm.date)
         }));

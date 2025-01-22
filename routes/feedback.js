@@ -59,7 +59,8 @@ router.post('/records', authenticate, async (req, res) => {
             .limit(limit)
             .sort({ createdAt: -1 });
 
-        const formattedFeedbacks = feedbacks.map(feedback => ({
+        const formattedFeedbacks = feedbacks.map((feedback, index) => ({
+            sno: index + 1,
             ...feedback.toObject(),
             date: formatTimestamp(feedback.date)
         }));
