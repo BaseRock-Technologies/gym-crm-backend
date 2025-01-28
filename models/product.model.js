@@ -25,7 +25,7 @@ const productSchema = new Schema({
         type: Buffer
     },
     productBarcode: {
-        type: Number,
+        type: String,
         required: true,
     },
     productBarcodeImage: {
@@ -45,7 +45,40 @@ const productSchema = new Schema({
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
+const vendorSchema = new Schema({
+    vendorName: {
+        type: String,
+        required: true,
+    },
+    contact: {
+        type: Number,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
+    address: {
+        type: String,
+        required: true,
+    },
+    gstNumber: {
+        type: Number,
+        required: true,
+    },
+    companyDetails: {
+        type: String
+    },
+    createdBy: {
+        type: String,
+        required: true,
+    },
+    createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
+
+})
+
 const productModel = model('products', productSchema, 'products');
+const vendorModel = model('vendors', vendorSchema, 'vendors');
 
 
-module.exports = { productModel }
+module.exports = { productModel, vendorModel }

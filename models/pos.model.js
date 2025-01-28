@@ -18,7 +18,7 @@ const posBillSchema = new Schema({
     subTotal: {
         type: Number,
     },
-    products: {
+    productDetails: {
         type: Array
     },
     discount: {
@@ -52,7 +52,61 @@ const posBillSchema = new Schema({
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
+const posPurchaseSchema = new Schema({
+    vendorName: {
+        type: String,
+        required: true,
+    },
+    invoiceByVendor: {
+        type: Number,
+        required: true,
+    },
+    purchaseDate: {
+        type: Number,
+        required: true,
+    },
+    productDetails: {
+        type: Array
+    },
+    subTotal: {
+        type: Number,
+    },
+    discount: {
+        type: Number,
+    },
+    taxName: {
+        type: String,
+    },
+    misc: {
+        type: Number,
+    },
+    shippingCharges: {
+        type: Number,
+    },
+    totalCharges: {
+        type: Number,
+    },
+    amountPaid: {
+        type: Number,
+    },
+    paymentMode: {
+        type: String,
+    },
+    credit: {
+        type: Number
+    },
+    notes: {
+        type: String,
+    },
+    createdBy: {
+        type: String,
+        required: true,
+    },
+    createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
+});
+
 const posBill = model('posBills', posBillSchema, 'posBills');
+const posPurchase = model('posPurchases', posPurchaseSchema, 'posPurchases');
 
 
-module.exports = { posBill }
+module.exports = { posBill, posPurchase }
