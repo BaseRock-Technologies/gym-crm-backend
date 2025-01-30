@@ -5,7 +5,7 @@ const router = express.Router();
 
 const { authenticate } = require("../helper/auth");
 const { taxCategoryModel, clientModel, paymentMethodModel } = require("../models/others.model");
-const { groupTheArrayOn } = require('../helper/steroids');
+const { groupTheArrayOn, formatTimestamp } = require('../helper/steroids');
 const { clientMembershipModel } = require('../models/client.model');
 const { posBill, posPurchase } = require('../models/pos.model');
 const { productModel, vendorModel } = require('../models/product.model');
@@ -79,6 +79,73 @@ router.post('/purchase/create', authenticate, async (req, res) => {
         return res.send({ status: 'success', data, message: 'Purchase Added successfully' });
     } catch (error) {
         console.log("Error in auth route::POST::/pos/purchase/create", error);
+        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
+
+router.post('/purchase/records', authenticate, async (req, res) => {
+    try {
+        const offset = parseInt(req.query.offset) || 0;
+        const limit = parseInt(req.query.limit) || 10;
+
+        const { filters, searchConfig } = req.body.myData;
+        const cleanFilters = { ...filters };
+
+        let searchQuery = cleanFilters;
+
+        if (searchConfig && searchConfig.searchTerm && searchConfig.searchableColumns?.length) {
+            const searchTerm = searchConfig.searchTerm.trim();
+            const searchConditions = searchConfig.searchableColumns.map(column => ({
+                [column]: { $regex: searchTerm, $options: 'i' }
+            }));
+
+            if (searchConditions.length > 0) {
+                searchQuery = {
+                    ...cleanFilters,
+                    $or: searchConditions
+                };
+            }
+        }
+
+        const validFields = Object.keys(posPurchase.schema.paths);
+        const finalQuery = {};
+
+        Object.entries(searchQuery).forEach(([key, value]) => {
+            if (key === '$or') {
+                finalQuery.$or = value.filter(condition => {
+                    const fieldName = Object.keys(condition)[0];
+                    return validFields.includes(fieldName);
+                });
+            } else if (validFields.includes(key)) {
+                finalQuery[key] = value;
+            }
+        });
+
+        const purchaseHistory = await posPurchase.find(finalQuery, { __v: 0 })
+            .skip(offset * limit)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        const formattedPurchaseHistory = purchaseHistory.map((purchase, index) => ({
+            vendorName: purchase.vendorName,
+            invoiceByVendor: purchase.invoiceByVendor,
+            purchaseDate: purchase.purchaseDate,
+            totalCharges: purchase.totalCharges,
+            paymentMode: purchase.paymentMode,
+        }));
+
+        const total = await posPurchase.countDocuments(finalQuery);
+
+        return res.send({
+            status: 'success',
+            data: {
+                records: formattedPurchaseHistory,
+                totalData: total,
+            },
+            message: 'Purchase History Fetched Successfully'
+        });
+    } catch (error) {
+        console.log("Error in auth route::POST::/pos.purchase/records", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
     }
 });

@@ -36,7 +36,7 @@ const productSchema = new Schema({
     },
     manageInventory: {
         type: Boolean,
-        default: true
+        default: false
     },
     createdBy: {
         type: String,
@@ -56,22 +56,18 @@ const vendorSchema = new Schema({
     },
     email: {
         type: String,
-        required: true,
     },
     address: {
         type: String,
-        required: true,
     },
     gstNumber: {
         type: Number,
-        required: true,
     },
     companyDetails: {
         type: String
     },
     createdBy: {
         type: String,
-        required: true,
     },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 
