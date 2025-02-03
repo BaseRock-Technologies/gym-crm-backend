@@ -19,6 +19,9 @@ const clientMembership = new Schema({
         type: Number,
         required: true,
     },
+    clientId: {
+        type: String
+    },
     alternateContact: {
         type: Number,
     },
@@ -57,7 +60,7 @@ const clientMembership = new Schema({
         type: String,
     },
     picture: {
-        type: Buffer,
+        type: String,
     },
     // package Info
     packageName: {
@@ -144,6 +147,11 @@ const clientMembership = new Schema({
     },
     chequeDate: {
         type: String,
+    },
+    status: {
+        type: String,
+        enum: ['active', 'deleted', 'freezed', 'inactive'],
+        default: 'active'
     },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
     updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },

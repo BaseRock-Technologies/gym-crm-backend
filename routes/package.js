@@ -1,6 +1,7 @@
 const express = require('express');
 const { packageModel } = require('../models/package.model');
 const { authenticate } = require('../helper/auth');
+const { groupTheArrayOn } = require('../helper/steroids');
 
 const router = express.Router();
 
@@ -27,6 +28,22 @@ router.post('/create', authenticate, async (req, res) => {
         return res.send({ status: 'success', exists: false, message: 'Package added successfully' });
     } catch (error) {
         console.log("Error in auth route::/package/create", error);
+        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
+
+router.post('/options', authenticate, async (req, res) => {
+    try {
+
+        let packageDetails = await packageModel.find({ showOnWebsite: true }, { package: 1, category: 1 });
+        packageDetails = groupTheArrayOn(packageDetails, "category");
+
+        const data = {
+            packageDetails,
+        }
+        return res.send({ status: 'success', data, message: 'Fetched successfully' });
+    } catch (error) {
+        console.log("Error in auth route::POST::/package/options", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
     }
 });

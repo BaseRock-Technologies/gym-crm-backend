@@ -7,7 +7,7 @@ const { authenticate } = require("../helper/auth");
 const { clientSourceModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel } = require("../models/others.model");
 const { groupTheArrayOn } = require('../helper/steroids');
 const { packageModel } = require('../models/package.model');
-const { clientMembershipModel } = require('../models/client.model');
+const { clientMembershipModel } = require('../models/membsrship.model');
 
 router.post('/options', authenticate, async (req, res) => {
     try {
@@ -51,8 +51,8 @@ router.post('/create', authenticate, async (req, res) => {
         data.billType = data.billType;
         if (data.billType === "gym-membership") {
             const { clientName,
-                contactNumber, memberId } = data;
-            await clientModel.updateOne({ contactNumber, clientName }, { $set: { memberId } })
+                contactNumber, memberId, picture = null } = data;
+            await clientModel.updateOne({ contactNumber, clientName }, { $set: { memberId, picture } })
         }
         await clientMembershipModel.create(data)
         return res.send({ status: 'success', message: 'Bill Created successfully' });
@@ -87,17 +87,18 @@ router.patch('/update', authenticate, async (req, res) => {
         const { billId, billType } = req.body.myData;
         const data = req.body.myData;
 
-
-
         const existingBill = await clientMembershipModel.findOne({ memberId: billId, billType });
         if (!existingBill) {
             return res.send({ status: 'error', message: 'Data not found' });
         }
 
         const updateResult = await clientMembershipModel.updateOne({ memberId: billId, billType }, { $set: data });
-        console.log(updateResult)
         if (updateResult.nModified === 0) {
             return res.send({ status: 'error', message: 'No changes made to the bill' });
+        }
+
+        if (data.picture) {
+            await clientModel.updateOne({ clientId: existingBill.clientId }, { $set: { picture: data.picture } });
         }
 
         return res.send({ status: 'success', message: 'Bill updated successfully' });

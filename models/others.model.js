@@ -70,12 +70,18 @@ const clientSchema = new Schema({
         type: Number,
         required: true,
     },
+    clientId: {
+        type: String,
+    },
     memberId: {
         type: Number,
     },
     createdBy: {
         type: String,
         required: true,
+    },
+    picture: {
+        type: String
     },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
