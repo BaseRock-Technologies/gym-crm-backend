@@ -7,7 +7,7 @@ const { authenticate } = require("../helper/auth");
 const { clientSourceModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel } = require("../models/others.model");
 const { groupTheArrayOn } = require('../helper/steroids');
 const { packageModel } = require('../models/package.model');
-const { clientMembershipModel } = require('../models/membsrship.model');
+const { clientMembershipModel, clientMembershipHistoryModel } = require('../models/membsrship.model');
 
 router.post('/options', authenticate, async (req, res) => {
     try {
@@ -49,12 +49,21 @@ router.post('/create', authenticate, async (req, res) => {
         const data = req.body.myData;
         data.createdBy = req.headers.userName;
         data.billType = data.billType;
-        if (data.billType === "gym-membership") {
-            const { clientName,
-                contactNumber, memberId, picture = null } = data;
-            await clientModel.updateOne({ contactNumber, clientName }, { $set: { memberId, picture } })
-        }
+        data.billId = await clientMembershipModel.countDocuments() + 1;
+        // if (data.billType === "gym-membership") {
+        const { clientName,
+            contactNumber, memberId, picture = null } = data;
+        await clientModel.updateOne({ contactNumber, clientName }, { $set: { memberId, picture } })
+        // }
         await clientMembershipModel.create(data)
+
+        const historyData = {
+            memberId: data.memberId,
+            billId: data.billId,
+            billType: data.billType,
+            freezeHistory: []
+        }
+        await clientMembershipHistoryModel.create(historyData);
         return res.send({ status: 'success', message: 'Bill Created successfully' });
     } catch (error) {
         console.log("Error in auth route::POST::/bills/create", error);
@@ -107,4 +116,34 @@ router.patch('/update', authenticate, async (req, res) => {
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
     }
 });
+
+router.post('/membership/freeze', authenticate, async (req, res) => {
+    try {
+        const { billId, billType, daysAllotted } = req.body.myData;
+
+        const isBillAvailable = await clientMembershipModel.findOne({ billId, billType });
+        if (!isBillAvailable) {
+            return res.send({ status: 'info', message: "No Bill found" });
+        }
+
+        const newEndDate = new Date(isBillAvailable.endDate * 1000);
+        newEndDate.setDate(newEndDate.getDate() + daysAllotted);
+
+        const newEndDateTimestamp = Math.floor(newEndDate.getTime() / 1000);
+        await clientMembershipModel.updateOne({ billId, billType }, { $set: { endDate: newEndDateTimestamp } });
+
+        const fromDate = isBillAvailable.joiningDate;
+
+        await clientMembershipHistoryModel.updateOne(
+            { billId, billType },
+            { $push: { freezeHistory: { fromDate, endDate: newEndDateTimestamp, freezedBy: req.headers.userName, createdAt: Math.floor(new Date().getTime() / 1000) } } }
+        );
+
+        return res.send({ status: 'success', message: 'Freezed Successfully' });
+    } catch (error) {
+        console.log("Error in auth route::/bills/membership/freeze", error);
+        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
+
 module.exports = router;

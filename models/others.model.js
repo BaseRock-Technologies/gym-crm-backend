@@ -70,10 +70,10 @@ const clientSchema = new Schema({
         type: Number,
         required: true,
     },
-    clientId: {
+    clientCode: {
         type: String,
     },
-    memberId: {
+    clientId: {
         type: Number,
     },
     createdBy: {

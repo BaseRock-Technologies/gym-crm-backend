@@ -8,6 +8,10 @@ const clientMembership = new Schema({
         type: Number,
         required: true,
     },
+    billId: {
+        type: Number,
+        required: true,
+    },
     invoiceDate: {
         type: String,
     },
@@ -19,7 +23,7 @@ const clientMembership = new Schema({
         type: Number,
         required: true,
     },
-    clientId: {
+    clientCode: {
         type: String
     },
     alternateContact: {
@@ -157,7 +161,27 @@ const clientMembership = new Schema({
     updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
+const clientMembershipHistory = new Schema({
+    memberId: {
+        type: Number,
+        required: true,
+    },
+    billId: {
+        type: Number,
+        required: true,
+    },
+    billType: {
+        type: String,
+        required: true,
+        enum: ['gym-membership', 'personal-training', 'group-class'],
+    },
+    freezeHistory: {
+        type: Array
+    }
+})
+
 
 const clientMembershipModel = model('memberships', clientMembership, 'memberships');
+const clientMembershipHistoryModel = model('membershipHistory', clientMembershipHistory, 'membershipHistory');
 
-module.exports = { clientMembershipModel };
+module.exports = { clientMembershipModel, clientMembershipHistoryModel };
