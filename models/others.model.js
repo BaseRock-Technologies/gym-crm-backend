@@ -70,6 +70,9 @@ const clientSchema = new Schema({
         type: Number,
         required: true,
     },
+    alternateContact: {
+        type: Number,
+    },
     clientCode: {
         type: String,
     },
@@ -82,6 +85,24 @@ const clientSchema = new Schema({
     },
     picture: {
         type: String
+    },
+    gender: {
+        type: String,
+    },
+    birthday: {
+        type: Number,
+    },
+    anniversary: {
+        type: Number,
+    },
+    profession: {
+        type: String,
+    },
+    address: {
+        type: String,
+    },
+    remarks: {
+        type: String,
     },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });

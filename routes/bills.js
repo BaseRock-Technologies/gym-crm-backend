@@ -8,6 +8,7 @@ const { clientSourceModel, taxCategoryModel, paymentMethodModel, trainersModel, 
 const { groupTheArrayOn } = require('../helper/steroids');
 const { packageModel } = require('../models/package.model');
 const { clientMembershipModel, clientMembershipHistoryModel } = require('../models/membsrship.model');
+const clientModelSchema = require('../models/others.model').clientModel.schema; // Adjust the path as necessary
 
 router.post('/options', authenticate, async (req, res) => {
     try {
@@ -50,19 +51,27 @@ router.post('/create', authenticate, async (req, res) => {
         data.createdBy = req.headers.userName;
         data.billType = data.billType;
         data.billId = await clientMembershipModel.countDocuments() + 1;
-        // if (data.billType === "gym-membership") {
-        const { clientName,
-            contactNumber, memberId, picture = null } = data;
-        await clientModel.updateOne({ contactNumber, clientName }, { $set: { memberId, picture } })
-        // }
-        await clientMembershipModel.create(data)
+
+        const { clientName, contactNumber } = data;
+
+        const updateFields = {};
+        const clientFields = Object.keys(clientModelSchema.paths).filter(field => field !== '__v' && field !== '_id');
+        clientFields.forEach(field => {
+            if (data[field] !== undefined) {
+                updateFields[field] = data[field];
+            }
+        });
+
+        await clientModel.findOneAndUpdate({ contactNumber, clientName }, { $set: updateFields });
+
+        await clientMembershipModel.create(data);
 
         const historyData = {
             memberId: data.memberId,
             billId: data.billId,
             billType: data.billType,
             freezeHistory: []
-        }
+        };
         await clientMembershipHistoryModel.create(historyData);
         return res.send({ status: 'success', message: 'Bill Created successfully' });
     } catch (error) {
@@ -76,15 +85,20 @@ router.post('/details', authenticate, async (req, res) => {
         const { billId, billType } = req.body.myData;
 
         const existingBill = await clientMembershipModel
-            .find({ memberId: billId, billType }, { createdBy: 0, createdAt: 0, updatedAt: 0, __v: 0, _id: 0, billType: 0 })
-            .sort({ createdAt: -1 });
-
+            .findOne({ memberId: billId, billType }, { createdBy: 0, createdAt: 0, updatedAt: 0, __v: 0, _id: 0, billType: 0 })
+            .sort({ createdAt: -1 })
+            .lean();
 
         if (!existingBill) {
             return res.send({ status: 'error', message: 'Data not found' });
         }
 
-        return res.send({ status: 'success', data: existingBill[0], message: 'Bill fetched successfully' });
+        const clientDetails = await clientModel.findOne({ clientCode: existingBill.clientCode }, { createdAt: 0, createdBy: 0, __v: 0, _id: 0 }).lean();
+        const data = {
+            ...existingBill,
+            ...clientDetails
+        }
+        return res.send({ status: 'success', data, message: 'Bill fetched successfully' });
     } catch (error) {
         console.log("Error in auth route::POST::/bills/gym-bill/:id", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
@@ -96,7 +110,7 @@ router.patch('/update', authenticate, async (req, res) => {
         const { billId, billType } = req.body.myData;
         const data = req.body.myData;
 
-        const existingBill = await clientMembershipModel.findOne({ memberId: billId, billType });
+        const existingBill = await clientMembershipModel.findOne({ memberId: billId, billType }).lean();
         if (!existingBill) {
             return res.send({ status: 'error', message: 'Data not found' });
         }
@@ -121,7 +135,7 @@ router.post('/membership/freeze', authenticate, async (req, res) => {
     try {
         const { billId, billType, daysAllotted } = req.body.myData;
 
-        const isBillAvailable = await clientMembershipModel.findOne({ billId, billType });
+        const isBillAvailable = await clientMembershipModel.findOne({ billId, billType }).lean();
         if (!isBillAvailable) {
             return res.send({ status: 'info', message: "No Bill found" });
         }

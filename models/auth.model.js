@@ -26,8 +26,8 @@ const resetTokenSchema = new Schema({
     createdAt: { type: Date, required: true, default: () => new Date() },
 });
 
-authSchema.index({ "createdAt": 1 }, { expireAfterSeconds: 360000 })
-resetTokenSchema.index({ "createdAt": 1 }, { expireAfterSeconds: 360000 })
+// authSchema.index({ "createdAt": 1 }, { expireAfterSeconds: 360000 })
+// resetTokenSchema.index({ "createdAt": 1 }, { expireAfterSeconds: 360000 })
 
 const authModel = model('auth', authSchema, 'auth');
 const resetTokenModel = model('resetTokens', resetTokenSchema, 'resetTokens');

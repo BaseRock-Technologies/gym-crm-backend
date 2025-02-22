@@ -1,7 +1,6 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { clientFormModel } = require('../models/client-form.model');
-const { formatTimestamp } = require('../helper/steroids');
 
 const router = express.Router();
 
@@ -62,7 +61,7 @@ router.post('/records', authenticate, async (req, res) => {
         const formattedForms = clientForms.map((clientForm, index) => ({
             sno: index + 1,
             ...clientForm.toObject(),
-            date: formatTimestamp(clientForm.date)
+            date: clientForm.date,
         }));
 
         const total = await clientFormModel.countDocuments(finalQuery);

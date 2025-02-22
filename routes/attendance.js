@@ -1,7 +1,7 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { clientAttendanceModel, employeeAttendanceModel } = require('../models/attendance.model');
-const { formatTimestamp, formatTime } = require('../helper/steroids');
+const { formatTime } = require('../helper/steroids');
 
 const router = express.Router();
 
@@ -63,9 +63,9 @@ router.post('/client/records', authenticate, async (req, res) => {
         const formattedAttendance = attendanceRecords.map((attendance, index) => ({
             sno: index + 1,
             ...attendance.toObject(),
-            date: formatTimestamp(attendance.date) || null,
-            inTime: formatTime(attendance.inTime) || null,
-            outTime: formatTime(attendance.outTime) || null
+            date: attendance.date || null,
+            inTime: attendance.inTime || null,
+            outTime: attendance.outTime || null
         }));
 
         const total = await clientAttendanceModel.countDocuments(finalQuery);
@@ -177,7 +177,7 @@ router.post('/employee/records', authenticate, async (req, res) => {
         const formattedAttendance = attendanceRecords.map((attendance, index) => ({
             sno: index + 1,
             ...attendance.toObject(),
-            date: formatTimestamp(attendance.date),
+            date: attendance.date,
             inTime: formatTime(attendance.inTime),
             outTime: formatTime(attendance.outTime)
         }));

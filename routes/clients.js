@@ -2,7 +2,6 @@ const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { clientModel } = require('../models/others.model');
 const { clientMembershipModel, clientMembershipHistoryModel } = require('../models/membsrship.model');
-const { formatTimestamp } = require('../helper/steroids');
 
 const router = express.Router();
 
@@ -10,7 +9,7 @@ router.post('/create', authenticate, async (req, res) => {
     try {
         const { clientName, contactNumber, email, clientCode } = req.body.myData;
 
-        const existingClient = await clientModel.findOne({ clientName, contactNumber });
+        const existingClient = await clientModel.findOne({ clientName, contactNumber }).lean();
         if (existingClient) {
             return res.send({ status: 'success', exists: true, message: "Client Already Exists" });
         }
@@ -104,15 +103,14 @@ router.post('/records', authenticate, async (req, res) => {
             { $replaceRoot: { newRoot: "$recentRecord" } },
             {
                 $project: {
+                    memberId: 1,
                     billId: 1,
-                    gender: 1,
-                    clientName: 1,
-                    contactNumber: 1,
                     clientCode: 1,
                     packageName: 1,
                     joiningDate: 1,
                     endDate: 1,
                     billType: 1,
+                    status: 1,
                 }
             },
             { $skip: offset * limit },
@@ -120,22 +118,27 @@ router.post('/records', authenticate, async (req, res) => {
         ]);
         const clientCodes = records.map(record => record.clientCode);
         const billIdAndType = records.map(record => ({ billId: record.billId, billType: record.billType }));
-        const clients = await clientModel.find({ clientCode: { $in: clientCodes } }, { clientCode: 1, picture: 1, clientId: 1, });
+        const clients = await clientModel.find({ clientCode: { $in: clientCodes } }, { clientName: 1, contactNumber: 1, gender: 1, clientCode: 1, picture: 1, clientId: 1 });
 
-        const clientPictures = {};
-        const clientIds = {};
+        // Create a map for quick lookup of client details
+        const clientMap = {};
         clients.forEach(client => {
-            clientPictures[client.clientCode] = client.picture;
-            clientIds[client.clientCode] = client.clientId;
+            clientMap[client.clientCode] = client; // Store the entire client object
         });
 
-        records = records.map(record => ({
-            ...record,
-            joiningDate: formatTimestamp(record.joiningDate),
-            endDate: formatTimestamp(record.endDate),
-            clientPicture: clientPictures[record.clientCode] || null,
-            clientId: clientIds[record.clientCode] || null,
-        }));
+        records = records.map(record => {
+            const clientDetails = clientMap[record.clientCode] || {};
+            return {
+                ...record,
+                joiningDate: record.joiningDate,
+                endDate: record.endDate,
+                clientPicture: clientDetails.picture || null,
+                clientId: clientDetails.clientId || null,
+                clientName: clientDetails.clientName || null, // Add any other client details you need
+                contactNumber: clientDetails.contactNumber || null,
+                gender: clientDetails.gender || null,
+            };
+        });
 
         delete records[clientCodes];
 
@@ -174,39 +177,54 @@ router.post('/records', authenticate, async (req, res) => {
 
 router.post('/profile', authenticate, async (req, res) => {
     try {
-        const { clientId } = req.body.myData;
+        const { memberId } = req.body.myData;
 
-        const clientDetails = await clientModel.findOne({ clientId });
-
-        if (!clientDetails) {
-            return res.send({ status: 'error', message: 'No data found' });
+        const membershipDetails = await clientMembershipModel.findOne({ memberId }).lean();
+        if (!membershipDetails) {
+            return res.send({ status: 'error', message: 'Membership details not found' });
         }
 
-        return res.send({ status: 'success', data: clientDetails, message: 'Client Details fetched Successfully' });
+        const clientDetails = await clientModel.findOne({ clientCode: membershipDetails.clientCode }, { _id: 0, __v: 0, email: 0, createdBy: 0, createdAt: 0, clientCode: 0, clientId: 0, }).lean();
+        if (!clientDetails) {
+            return res.send({ status: 'error', message: 'No data found for the client' });
+        }
+
+        const data = {
+            ...clientDetails,
+            joiningDate: membershipDetails.joiningDate,
+            memberId: membershipDetails.memberId,
+        }
+
+        return res.send({ status: 'success', data, message: 'Client Details fetched Successfully' });
     } catch (error) {
         console.log("Error in auth route::/client/profile", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
     }
 });
 
-router.post('/update', authenticate, async (req, res) => {
-    try {
-        const { clientId, updateData } = req.body.myData;
+// router.post('/update', authenticate, async (req, res) => {
+//     try {
+//         const { memberId, joiningDate = null, ...updateData } = req.body.myData;
 
-        const clientDetails = await clientModel.findOne({ clientId });
+//         const membershipDetails = await clientMembershipModel.findOne({ memberId }).lean();
+//         if (!membershipDetails) {
+//             return res.send({ status: 'error', message: 'No details not found' });
+//         }
 
-        if (!clientDetails) {
-            return res.send({ status: 'error', message: 'No data found' });
-        }
+//         const clientDetails = await clientModel.findOne({ clientCode: membershipDetails.clientCode }).lean();
 
-        await clientModel.updateOne({ clientId }, { $set: updateData });
+//         if (!clientDetails) {
+//             return res.send({ status: 'error', message: 'No data found' });
+//         }
 
-        return res.send({ status: 'success', message: 'Client Details updated Successfully' });
-    } catch (error) {
-        console.log("Error in auth route::/client/update", error);
-        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
-    }
-});
+//         await clientModel.updateOne({ clientCode: clientDetails.clientCode }, { $set: updateData });
+
+//         return res.send({ status: 'success', message: 'Client Details updated Successfully' });
+//     } catch (error) {
+//         console.log("Error in auth route::/client/update", error);
+//         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+//     }
+// });
 
 
 module.exports = router;

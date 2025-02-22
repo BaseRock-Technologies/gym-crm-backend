@@ -1,7 +1,6 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { feedbackModel } = require('../models/feedback.model');
-const { formatTimestamp } = require('../helper/steroids');
 
 const router = express.Router();
 
@@ -62,7 +61,7 @@ router.post('/records', authenticate, async (req, res) => {
         const formattedFeedbacks = feedbacks.map((feedback, index) => ({
             sno: index + 1,
             ...feedback.toObject(),
-            date: formatTimestamp(feedback.date)
+            date: feedback.date,
         }));
 
         const total = await feedbackModel.countDocuments(finalQuery);

@@ -1,7 +1,7 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { inquiryModel } = require('../models/inquiry.model');
-const { groupTheArrayOn, formatTimestamp } = require('../helper/steroids');
+const { groupTheArrayOn } = require('../helper/steroids');
 const { clientSourceModel, employeeModel } = require('../models/others.model');
 const { packageModel } = require('../models/package.model');
 
@@ -98,7 +98,7 @@ router.post('/records', authenticate, async (req, res) => {
             name: `${record.firstName} ${record.lastName}`,
             contactNumber: record.contactNumber,
             inquiryFor: record.inquiryFor,
-            followUpDate: formatTimestamp(record.followUpDate),
+            followUpDate: record.followUpDate,
             attendedBy: record.attendedBy,
             status: record.status,
             convertibility: record.convertibility,

@@ -15,36 +15,10 @@ const clientMembership = new Schema({
     invoiceDate: {
         type: String,
     },
-    clientName: {
-        type: String,
-        required: true,
-    },
-    contactNumber: {
-        type: Number,
-        required: true,
-    },
     clientCode: {
         type: String
     },
-    alternateContact: {
-        type: Number,
-    },
-    email: {
-        type: String,
-    },
     clientSource: {
-        type: String,
-    },
-    gender: {
-        type: String,
-    },
-    birthday: {
-        type: Number,
-    },
-    anniversary: {
-        type: Number,
-    },
-    profession: {
         type: String,
     },
     taxId: {
@@ -53,17 +27,7 @@ const clientMembership = new Schema({
     workoutHourmorning: {
         type: String,
     },
-
     workoutHourevening: {
-        type: String,
-    },
-    address: {
-        type: String,
-    },
-    remarks: {
-        type: String,
-    },
-    picture: {
         type: String,
     },
     // package Info
