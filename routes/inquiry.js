@@ -10,6 +10,7 @@ const router = express.Router();
 router.post('/create', authenticate, async (req, res) => {
     try {
         const data = req.body.myData;
+        console.log(data)
         data.createdBy = req.headers.userName,
             await inquiryModel.create(data);
         return res.send({ status: 'success', message: 'Inquiry Created successfully' });
