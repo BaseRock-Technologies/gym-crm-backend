@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
-const { clientSourceModel, paymentMethodModel, taxCategoryModel, trainersModel, employeeModel } = require('../models/others.model');
+const { clientSourceModel, paymentMethodModel, taxCategoryModel, trainersModel, employeeModel, clientModel } = require('../models/others.model');
 
 const router = express.Router();
 
@@ -105,6 +105,65 @@ router.post('/employee/create', authenticate, async (req, res) => {
     } catch (error) {
         console.log("Error in auth route::/others/employee/create", error);
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
+
+// Get client by ID
+router.get('/client/:clientId', authenticate, async (req, res) => {
+    try {
+        const { clientId } = req.params;
+
+        const client = await clientModel.findById(clientId, {
+            clientName: 1,
+            contactNumber: 1,
+            clientCode: 1,
+            email: 1,
+            gender: 1,
+            address: 1
+        }).lean();
+
+        if (!client) {
+            return res.status(404).send({
+                status: 'error',
+                message: 'Client not found'
+            });
+        }
+
+        return res.send({
+            status: 'success',
+            data: client,
+            message: 'Client fetched successfully'
+        });
+    } catch (error) {
+        console.log("Error in auth route::/others/client/:clientId", error);
+        return res.status(500).send({
+            message: 'Internal Server Error',
+            status: 'error'
+        });
+    }
+});
+
+// Get all clients for dropdown
+router.post('/clients', authenticate, async (req, res) => {
+    try {
+        let clients = await clientModel.find({}, {
+            _id: 1,
+            clientName: 1,
+            contactNumber: 1,
+            clientCode: 1,
+        }).lean();
+        clients = clients.reduce((acc, val) => { acc.default.push(val); return acc; }, { default: [] })
+        return res.send({
+            status: 'success',
+            data: clients,
+            message: 'Clients fetched successfully'
+        });
+    } catch (error) {
+        console.log("Error in auth route::/others/clients", error);
+        return res.status(500).send({
+            message: 'Internal Server Error',
+            status: 'error'
+        });
     }
 });
 
