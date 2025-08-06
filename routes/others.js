@@ -26,6 +26,23 @@ router.post('/client-source/create', authenticate, async (req, res) => {
     }
 });
 
+router.delete('/client-source/delete/:id', authenticate, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const deletedSource = await clientSourceModel.findByIdAndDelete(id);
+        
+        if (!deletedSource) {
+            return res.status(404).send({ message: 'Client Source not found', status: 'error' });
+        }
+        
+        return res.send({ status: 'success', message: 'Client Source deleted successfully' });
+    } catch (error) {
+        console.log("Error in auth route::DELETE::/others/client-source/delete", error);
+        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
+
 router.post('/trainer/create', authenticate, async (req, res) => {
     try {
         const { trainer } = req.body.myData;
