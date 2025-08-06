@@ -10,13 +10,8 @@ const followupSchema = new Schema({
     contactNumber: {
         type: Number,
     },
-    clientCode: {
-        type: String,
-        required: true,
-    },
     followupType: {
         type: String,
-        required: true,
     },
     followupDate: {
         type: Number,
@@ -30,7 +25,7 @@ const followupSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'completed', 'cancelled'],
+        enum: ['pending', 'completed', 'close'],
         default: 'pending',
     },
     createdBy: {

@@ -10,33 +10,35 @@ router.post('/create', authenticate, async (req, res) => {
         const data = req.body.myData;
 
         // Validate required fields
-        if (!data.clientCode || !data.followupType || !data.followupDate || !data.followupTime) {
+        if (!data.followupDate) {
             return res.status(400).send({
                 status: 'error',
-                message: 'Missing required fields'
+                message: 'Missing required field(s)'
             });
         }
 
-        // Get client information
-        const client = await clientModel.findOne({ clientCode: data.clientCode });
-        if (!client) {
-            return res.status(404).send({
-                status: 'error',
-                message: 'Client not found'
-            });
+        let client;
+        if (data.clientCode) {
+            // Get client information
+            client = await clientModel.findOne({ clientCode: data.clientCode });
+            if (!client) {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'Client not found'
+                });
+            }
         }
 
         // Prepare followup data
         const followupData = {
-            clientCode: data.clientCode,
-            contactNumber: client.contactNumber,
-            clientName: client.clientName,
+            contactNumber: client?.contactNumber || data.contactNumber,
+            clientName: client?.clientName || data.clientName,
             followupType: data.followupType,
             followupDate: data.followupDate,
             followupTime: data.followupTime,
             feedback: data.feedback || '',
             status: 'pending',
-            createdBy: req.headers.userName || 'system',
+            createdBy: req.headers.userName || '',
             createdAt: Math.floor(Date.now() / 1000),
             updatedAt: Math.floor(Date.now() / 1000)
         };
@@ -62,6 +64,13 @@ router.post('/records', authenticate, async (req, res) => {
 
         const { filters, searchConfig } = req.body.myData || {};
         const cleanFilters = { ...filters };
+
+        // Skip filters with "all" value
+        Object.keys(cleanFilters).forEach(key => {
+            if (cleanFilters[key] === 'all') {
+                delete cleanFilters[key];
+            }
+        });
 
         let searchQuery = cleanFilters;
 

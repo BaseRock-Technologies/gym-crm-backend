@@ -1,7 +1,7 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { clientModel } = require('../models/others.model');
-const { clientMembershipModel, clientMembershipHistoryModel } = require('../models/membsrship.model');
+const { clientMembershipModel, clientMembershipHistoryModel } = require('../models/membership.model');
 
 const router = express.Router();
 

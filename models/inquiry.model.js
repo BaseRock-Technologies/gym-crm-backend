@@ -23,17 +23,17 @@ const inquirySchema = new Schema({
     gender: {
         type: String,
         required: true,
-        enum: ['Male', 'Female'],
+        enum: ['male', 'female'],
         default: 'Male',
     },
     areaAddress: {
         type: String,
     },
-    followUpDate: {
+    followupDate: {
         type: Number,
         required: true,
     },
-    followUpTime: {
+    followupTime: {
         type: String,
     },
     assessmentDate: {
@@ -41,8 +41,8 @@ const inquirySchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Close', 'Converted'],
-        default: 'Pending',
+        enum: ['pending', 'close', 'completed'],
+        default: 'pending',
         required: true,
     },
     attendedBy: {
@@ -55,8 +55,8 @@ const inquirySchema = new Schema({
     },
     convertibility: {
         type: String,
-        enum: ['Hot', 'Cold', 'Warm', 'Expected Amount', 'Successful Follow Up'],
-        default: 'Warm',
+        enum: ['hot', 'cold', 'warm', 'expected-amount', 'successful-followup'],
+        default: 'warm',
         required: true,
     },
     sourceOfInquiry: {
@@ -80,6 +80,6 @@ const inquirySchema = new Schema({
 });
 
 
-const inquiryModel = model('imquiries', inquirySchema, 'imquiries');
+const inquiryModel = model('inquiries', inquirySchema, 'inquiries');
 
 module.exports = { inquiryModel };

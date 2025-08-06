@@ -6,7 +6,7 @@ const router = express.Router();
 const { authenticate } = require("../helper/auth");
 const { taxCategoryModel, clientModel, paymentMethodModel } = require("../models/others.model");
 const { groupTheArrayOn } = require('../helper/steroids');
-const { clientMembershipModel } = require('../models/membsrship.model');
+const { clientMembershipModel } = require('../models/membership.model');
 const { posBill, posPurchase } = require('../models/pos.model');
 const { productModel, vendorModel } = require('../models/product.model');
 

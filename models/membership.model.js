@@ -75,7 +75,7 @@ const clientMembership = new Schema({
     amount: {
         type: Number,
     },
-    followUpDate: {
+    followupDate: {
         type: String,
     },
     amountStatus: {

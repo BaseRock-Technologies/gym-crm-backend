@@ -1,7 +1,7 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { clientSourceModel, paymentMethodModel, taxCategoryModel, trainersModel, employeeModel, clientModel } = require('../models/others.model');
-
+const { clientMembershipModel } = require('../models/membership.model');
 const router = express.Router();
 
 
@@ -160,6 +160,193 @@ router.post('/clients', authenticate, async (req, res) => {
         });
     } catch (error) {
         console.log("Error in auth route::/others/clients", error);
+        return res.status(500).send({
+            message: 'Internal Server Error',
+            status: 'error'
+        });
+    }
+});
+
+// Get clients with upcoming birthdays
+router.post('/clients/birthdays', authenticate, async (req, res) => {
+    try {
+        const { filters, searchConfig } = req.body.myData || {};
+        const offset = parseInt(req.query.offset) || 0;
+        const limit = parseInt(req.query.limit) || 10;
+
+        // Skip filters with "all" value
+        const cleanFilters = { ...filters };
+        Object.keys(cleanFilters).forEach(key => {
+            if (cleanFilters[key] === 'all') {
+                delete cleanFilters[key];
+            }
+        });
+
+        // Base query for clients with birthday data
+        let query = {
+            birthday: { $exists: true, $ne: null },
+            ...cleanFilters
+        };
+
+        // Handle search functionality
+        if (searchConfig && searchConfig.searchTerm && searchConfig.searchableColumns?.length) {
+            const searchTerm = searchConfig.searchTerm.trim();
+            const searchConditions = searchConfig.searchableColumns.map(column => ({
+                [column]: { $regex: searchTerm, $options: 'i' }
+            }));
+
+            if (searchConditions.length > 0) {
+                query = {
+                    ...query,
+                    $or: searchConditions
+                };
+            }
+        }
+
+        // Get clients with birthdays
+        const clients = await clientModel.find(query, {
+            clientName: 1,
+            birthday: 1,
+            gender: 1,
+            clientCode: 1,
+            contactNumber: 1
+        }).skip(offset * limit).limit(limit).lean();
+
+        // Get membership details for these clients
+        const clientCodes = clients.map(c => c.clientCode).filter(code => code);
+        const memberships = await clientMembershipModel.find(
+            { clientCode: { $in: clientCodes }, status: 'active' },
+            { clientCode: 1, memberId: 1 }
+        ).lean();
+
+        // Create membership lookup
+        const membershipMap = {};
+        memberships.forEach(membership => {
+            membershipMap[membership.clientCode] = membership.memberId;
+        });
+
+        // Format the response with age calculation
+        const formattedClients = clients.map((client, index) => {
+            const birthdayDate = new Date(client.birthday * 1000);
+            const today = new Date();
+            let age = today.getFullYear() - birthdayDate.getFullYear();
+            const monthDiff = today.getMonth() - birthdayDate.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdayDate.getDate())) {
+                age--;
+            }
+
+            return {
+                sno: index + 1,
+                name: client.clientName,
+                memberId: membershipMap[client.clientCode] || 'N/A',
+                dob: client.birthday,
+                age: age,
+                gender: client.gender,
+                contactNumber: client.contactNumber
+            };
+        });
+
+        const total = await clientModel.countDocuments(query);
+
+        return res.send({
+            status: 'success',
+            data: {
+                records: formattedClients,
+                totalData: total,
+            },
+            message: 'Client Birthdays Fetched Successfully'
+        });
+    } catch (error) {
+        console.log("Error in others route::/others/clients/birthdays", error);
+        return res.status(500).send({
+            message: 'Internal Server Error',
+            status: 'error'
+        });
+    }
+});
+
+// Get clients with upcoming anniversaries
+router.post('/clients/anniversaries', authenticate, async (req, res) => {
+    try {
+        const { filters, searchConfig } = req.body.myData || {};
+        const offset = parseInt(req.query.offset) || 0;
+        const limit = parseInt(req.query.limit) || 10;
+
+        // Skip filters with "all" value
+        const cleanFilters = { ...filters };
+        Object.keys(cleanFilters).forEach(key => {
+            if (cleanFilters[key] === 'all') {
+                delete cleanFilters[key];
+            }
+        });
+
+        // Base query for clients with anniversary data
+        let query = {
+            anniversary: { $exists: true, $ne: null },
+            ...cleanFilters
+        };
+
+        // Handle search functionality
+        if (searchConfig && searchConfig.searchTerm && searchConfig.searchableColumns?.length) {
+            const searchTerm = searchConfig.searchTerm.trim();
+            const searchConditions = searchConfig.searchableColumns.map(column => ({
+                [column]: { $regex: searchTerm, $options: 'i' }
+            }));
+
+            if (searchConditions.length > 0) {
+                query = {
+                    ...query,
+                    $or: searchConditions
+                };
+            }
+        }
+
+        // Get clients with anniversaries
+        const clients = await clientModel.find(query, {
+            clientName: 1,
+            anniversary: 1,
+            gender: 1,
+            clientCode: 1,
+            contactNumber: 1
+        }).skip(offset * limit).limit(limit).lean();
+
+        // Get membership details for these clients
+        const clientCodes = clients.map(c => c.clientCode).filter(code => code);
+        const memberships = await clientMembershipModel.find(
+            { clientCode: { $in: clientCodes }, status: 'active' },
+            { clientCode: 1, memberId: 1 }
+        ).lean();
+
+        // Create membership lookup
+        const membershipMap = {};
+        memberships.forEach(membership => {
+            membershipMap[membership.clientCode] = membership.memberId;
+        });
+
+        const formattedClients = clients.map((client, index) => {
+            return {
+                sno: index + 1,
+                name: client.clientName,
+                memberId: membershipMap[client.clientCode] || 'N/A',
+                date: client.anniversary,
+                gender: client.gender,
+                contactNumber: client.contactNumber
+            };
+        });
+
+        const total = await clientModel.countDocuments(query);
+
+        return res.send({
+            status: 'success',
+            data: {
+                records: formattedClients,
+                totalData: total,
+            },
+            message: 'Client Anniversaries Fetched Successfully'
+        });
+    } catch (error) {
+        console.log("Error in others route::/others/clients/anniversaries", error);
         return res.status(500).send({
             message: 'Internal Server Error',
             status: 'error'

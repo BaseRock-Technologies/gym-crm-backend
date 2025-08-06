@@ -31,7 +31,7 @@ router.post('/records', authenticate, async (req, res) => {
         // Handle date range
         if (filters && filters['date-range']) {
             const { from, to } = filters['date-range'];
-            cleanFilters.followUpDate = {
+            cleanFilters.followupDate = {
                 $gte: new Date(from).getTime() / 1000,
                 $lte: new Date(to).getTime() / 1000
             };
@@ -85,7 +85,7 @@ router.post('/records', authenticate, async (req, res) => {
             lastName: 1,
             contactNumber: 1,
             inquiryFor: 1,
-            followUpDate: 1,
+            followupDate: 1,
             attendedBy: 1,
             status: 1,
             convertibility: 1,
@@ -99,7 +99,7 @@ router.post('/records', authenticate, async (req, res) => {
             name: `${record.firstName} ${record.lastName}`,
             contactNumber: record.contactNumber,
             inquiryFor: record.inquiryFor,
-            followUpDate: record.followUpDate,
+            followupDate: record.followupDate,
             attendedBy: record.attendedBy,
             status: record.status,
             convertibility: record.convertibility,

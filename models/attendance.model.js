@@ -17,7 +17,6 @@ const clientAttendanceSchema = new Schema({
     },
     contactNumber: {
         type: Number,
-        required: true,
     },
     inTime: {
         type: Number,
