@@ -3,23 +3,21 @@ const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
 
 const feedbackSchema = new Schema({
-    date: {
-        type: Number,
-        required: true,
-    },
-    name: {
+    clientName: {
         type: String,
-        required: true,
     },
     contactNumber: {
         type: Number,
-        required: true,
     },
     feedback: {
         type: String,
         required: true,
     },
+    createdBy: {
+        type: String,
+    },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
+    updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
 

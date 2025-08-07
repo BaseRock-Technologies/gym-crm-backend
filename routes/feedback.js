@@ -60,8 +60,10 @@ router.post('/records', authenticate, async (req, res) => {
 
         const formattedFeedbacks = feedbacks.map((feedback, index) => ({
             sno: index + 1,
-            ...feedback.toObject(),
-            date: feedback.date,
+            clientName: feedback.clientName,
+            contactNumber: feedback.contactNumber,
+            feedback: feedback.feedback,
+            date: feedback.createdAt,
         }));
 
         const total = await feedbackModel.countDocuments(finalQuery);

@@ -4,15 +4,41 @@ const { inquiryModel } = require('../models/inquiry.model');
 const { groupTheArrayOn } = require('../helper/steroids');
 const { clientSourceModel, employeeModel } = require('../models/others.model');
 const { packageModel } = require('../models/package.model');
+const { feedbackModel } = require('../models/feedback.model');
+const { followupsModel } = require('../models/followups.model');
 
 const router = express.Router();
 
 router.post('/create', authenticate, async (req, res) => {
     try {
         const data = req.body.myData;
-        console.log(data)
-        data.createdBy = req.headers.userName,
-            await inquiryModel.create(data);
+        data.createdBy = req.headers.userName;
+
+        const followupData = {
+            clientName: `${data.firstName || ''} ${data.lastName || ''}`,
+            contactNumber: data.contactNumber,
+            followupDate: data.followupDate,
+            followupTime: data.followupTime,
+            feedback: data.feedback,
+            status: data.status,
+            createdBy: req.headers.userName,
+        }
+
+        const feedbackData = {
+            clientName: `${data.firstName || ''} ${data.lastName || ''}`,
+            contactNumber: data.contactNumber,
+            feedback: data.feedback,
+            createdBy: req.headers.userName,
+        }
+
+        await inquiryModel.create(data);
+        if (data.feedback) {
+            await feedbackModel.create(feedbackData);
+        }
+        if (data.followupDate) {
+            await followupsModel.create(followupData);
+        }
+
         return res.send({ status: 'success', message: 'Inquiry Created successfully' });
     } catch (error) {
         console.log("Error in auth route POST::/inquiry/create", error);
