@@ -108,6 +108,27 @@ router.post('/employee/create', authenticate, async (req, res) => {
     }
 });
 
+//list the employees
+router.post('/employee/list', authenticate, async (req, res) => {
+    try {
+        let employees = await employeeModel.find({ status: "active" }, { __v: 0 }).lean();
+        employees = employees.reduce((acc, employee) => {
+            acc.default.push({
+                employeeName: employee.fullName,
+                contactNumber: employee.contact,
+                _id: employee._id
+            }); return acc;
+        }, { default: [] })
+        return res.send({
+            status: 'success',
+            data: employees,
+            message: 'Employees fetched successfully'
+        });
+    } catch (error) {
+        console.log("Error in auth route::/others/employee/list", error);
+        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
 // Get client by ID
 router.get('/client/:clientId', authenticate, async (req, res) => {
     try {
@@ -144,7 +165,7 @@ router.get('/client/:clientId', authenticate, async (req, res) => {
 });
 
 // Get all clients for dropdown
-router.post('/clients', authenticate, async (req, res) => {
+router.post('/clients/list', authenticate, async (req, res) => {
     try {
         let clients = await clientModel.find({}, {
             _id: 1,

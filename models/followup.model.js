@@ -36,6 +36,6 @@ const followupSchema = new Schema({
     updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
-const followupsModel = model('followups', followupSchema, 'followups');
+const followupModel = model('followups', followupSchema, 'followups');
 
-module.exports = { followupsModel };
+module.exports = { followupModel };

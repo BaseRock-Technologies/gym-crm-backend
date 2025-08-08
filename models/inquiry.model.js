@@ -24,7 +24,7 @@ const inquirySchema = new Schema({
         type: String,
         required: true,
         enum: ['male', 'female'],
-        default: 'Male',
+        default: 'male',
     },
     areaAddress: {
         type: String,

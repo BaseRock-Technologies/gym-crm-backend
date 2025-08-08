@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticate } = require('../helper/auth');
-const { followupsModel } = require('../models/followups.model');
+const { followupModel } = require('../models/followup.model');
 const { clientModel } = require('../models/others.model');
 
 const router = express.Router();
@@ -43,7 +43,7 @@ router.post('/create', authenticate, async (req, res) => {
             updatedAt: Math.floor(Date.now() / 1000)
         };
 
-        await followupsModel.create(followupData);
+        await followupModel.create(followupData);
         return res.send({
             status: 'success',
             message: 'Followup Created Successfully'
@@ -88,7 +88,7 @@ router.post('/records', authenticate, async (req, res) => {
             }
         }
 
-        const validFields = Object.keys(followupsModel.schema.paths);
+        const validFields = Object.keys(followupModel.schema.paths);
         const finalQuery = {};
 
         Object.entries(searchQuery).forEach(([key, value]) => {
@@ -102,7 +102,7 @@ router.post('/records', authenticate, async (req, res) => {
             }
         });
 
-        const followups = await followupsModel.find(finalQuery, { __v: 0 })
+        const followups = await followupModel.find(finalQuery, { __v: 0 })
             .skip(offset * limit)
             .limit(limit)
             .sort({ createdAt: -1 });
@@ -112,7 +112,7 @@ router.post('/records', authenticate, async (req, res) => {
             ...followup.toObject(),
         }));
 
-        const total = await followupsModel.countDocuments(finalQuery);
+        const total = await followupModel.countDocuments(finalQuery);
 
         return res.send({
             status: 'success',
@@ -136,7 +136,7 @@ router.post('/update-status/:id', authenticate, async (req, res) => {
         const { status } = req.body.myData;
         const followupId = req.params.id;
 
-        await followupsModel.findByIdAndUpdate(followupId, { status });
+        await followupModel.findByIdAndUpdate(followupId, { status, updatedAt: Math.floor(Date.now() / 1000) });
 
         return res.send({
             status: 'success',
@@ -154,7 +154,7 @@ router.post('/update-status/:id', authenticate, async (req, res) => {
 router.post('/delete/:id', authenticate, async (req, res) => {
     try {
         const followupId = req.params.id;
-        await followupsModel.findByIdAndDelete(followupId);
+        await followupModel.findByIdAndDelete(followupId);
 
         return res.send({
             status: 'success',

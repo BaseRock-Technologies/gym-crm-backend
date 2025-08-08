@@ -5,7 +5,7 @@ const { groupTheArrayOn } = require('../helper/steroids');
 const { clientSourceModel, employeeModel } = require('../models/others.model');
 const { packageModel } = require('../models/package.model');
 const { feedbackModel } = require('../models/feedback.model');
-const { followupsModel } = require('../models/followups.model');
+const { followupModel } = require('../models/followup.model');
 
 const router = express.Router();
 
@@ -36,7 +36,7 @@ router.post('/create', authenticate, async (req, res) => {
             await feedbackModel.create(feedbackData);
         }
         if (data.followupDate) {
-            await followupsModel.create(followupData);
+            await followupModel.create(followupData);
         }
 
         return res.send({ status: 'success', message: 'Inquiry Created successfully' });

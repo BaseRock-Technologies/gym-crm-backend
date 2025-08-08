@@ -124,32 +124,21 @@ const employeeSchema = new Schema({
     },
     gender: {
         type: String,
-        enum: ["Male", "Female"]
+        enum: ["male", "female"]
     },
     address: {
         type: String,
     },
     employeeType: {
         type: String,
-        enum: ["Sales Team", "Management", "Others"]
+        enum: ["sales-team", "management", "others"]
     },
     monthlySalary: {
         type: Number
     },
-    maxDiscount: {
-        type: Number
-    },
-    loginRequired: {
-        type: Boolean,
-        default: false,
-    },
-    setTraget: {
-        type: Boolean,
-        default: false,
-    },
     status: {
         type: String,
-        enum: ["Active", "Inactive"]
+        enum: ["active", "inactive"]
     },
     createdBy: {
         type: String,
