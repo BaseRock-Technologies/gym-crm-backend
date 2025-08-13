@@ -13,7 +13,7 @@ const clientMembership = new Schema({
         required: true,
     },
     invoiceDate: {
-        type: String,
+        type: Number,
     },
     clientCode: {
         type: String

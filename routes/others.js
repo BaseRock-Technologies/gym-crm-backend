@@ -129,6 +129,7 @@ router.post('/employee/list', authenticate, async (req, res) => {
         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
     }
 });
+
 // Get client by ID
 router.get('/client/:clientId', authenticate, async (req, res) => {
     try {

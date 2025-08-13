@@ -32,6 +32,14 @@ const followupSchema = new Schema({
         type: String,
         required: true,
     },
+    clientId: {
+        type: Number,
+        required: true,
+    },
+    clientCode: {
+        type: String,
+        required: true,
+    },
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
     updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });

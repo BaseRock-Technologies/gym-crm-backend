@@ -88,14 +88,14 @@ router.post('/client/records', authenticate, async (req, res) => {
 
 router.post('/client/create', authenticate, async (req, res) => {
     try {
-        const { biometricId, name, memberId, contactNumber } = req.body.myData;
+        const { clientId, name, memberId, contactNumber } = req.body.myData;
         const todayDate = Math.floor(new Date().setHours(0, 0, 0, 0) / 1000);
         const currentTime = Math.floor(new Date().getTime() / 1000);
 
         // Get attendance records for today, sorted by creation time (most recent first)
         const todayAttendance = await clientAttendanceModel
             .find({
-                biometricId,
+                clientId: clientId,
                 date: todayDate,
                 category: "clients"
             })
@@ -108,7 +108,7 @@ router.post('/client/create', authenticate, async (req, res) => {
         if (todayAttendance.length === 0) {
             // No attendance record for today - create new "in" record
             attendanceRecord = await clientAttendanceModel.create({
-                biometricId,
+                clientId,
                 name,
                 memberId,
                 contactNumber,
@@ -131,7 +131,7 @@ router.post('/client/create', authenticate, async (req, res) => {
             } else {
                 // Both in and out exist in latest record - create new "in" record
                 attendanceRecord = await clientAttendanceModel.create({
-                    biometricId,
+                    clientId,
                     name,
                     memberId,
                     contactNumber,

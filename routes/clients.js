@@ -202,29 +202,29 @@ router.post('/profile', authenticate, async (req, res) => {
     }
 });
 
-// router.post('/update', authenticate, async (req, res) => {
-//     try {
-//         const { memberId, joiningDate = null, ...updateData } = req.body.myData;
+router.post('/update', authenticate, async (req, res) => {
+    try {
+        const { memberId, joiningDate = null, ...updateData } = req.body.myData;
 
-//         const membershipDetails = await clientMembershipModel.findOne({ memberId }).lean();
-//         if (!membershipDetails) {
-//             return res.send({ status: 'error', message: 'No details not found' });
-//         }
+        const membershipDetails = await clientMembershipModel.findOne({ memberId }).lean();
+        if (!membershipDetails) {
+            return res.send({ status: 'error', message: 'No details not found' });
+        }
 
-//         const clientDetails = await clientModel.findOne({ clientCode: membershipDetails.clientCode }).lean();
+        const clientDetails = await clientModel.findOne({ clientCode: membershipDetails.clientCode }).lean();
 
-//         if (!clientDetails) {
-//             return res.send({ status: 'error', message: 'No data found' });
-//         }
+        if (!clientDetails) {
+            return res.send({ status: 'error', message: 'No data found' });
+        }
 
-//         await clientModel.updateOne({ clientCode: clientDetails.clientCode }, { $set: updateData });
+        await clientModel.updateOne({ clientCode: clientDetails.clientCode }, { $set: updateData });
 
-//         return res.send({ status: 'success', message: 'Client Details updated Successfully' });
-//     } catch (error) {
-//         console.log("Error in auth route::/client/update", error);
-//         return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
-//     }
-// });
+        return res.send({ status: 'success', message: 'Client Details updated Successfully' });
+    } catch (error) {
+        console.log("Error in auth route::/client/update", error);
+        return res.status(500).send({ message: 'Internal Server Error', status: 'error' });
+    }
+});
 
 
 module.exports = router;

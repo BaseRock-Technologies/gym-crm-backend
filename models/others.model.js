@@ -150,11 +150,39 @@ const employeeSchema = new Schema({
     createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
 });
 
+const scheduleSchema = new Schema({
+    trainerName: {
+        type: String,
+        required: true,
+    },
+    clientName: {
+        type: String,
+        required: true,
+    },
+    timeFrom: {
+        type: String,
+    },
+    timeTo: {
+        type: String,
+    },
+    scheduleDate: {
+        type: Number,
+        required: true,
+    },
+    createdBy: {
+        type: String,
+        required: true,
+    },
+    createdAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
+    updatedAt: { type: Number, default: () => Math.floor(new Date().getTime() / 1000) },
+});
+
 const clientSourceModel = model('clientSource', clientSourceSchema, 'clientSource');
 const taxCategoryModel = model('taxCategory', taxSchema, 'taxCategory');
 const paymentMethodModel = model('paymentMethods', paymentMethodSchema, 'paymentMethods');
 const trainersModel = model('trainers', trainerSchema, 'trainers');
 const clientModel = model('clients', clientSchema, 'clients');
 const employeeModel = model('employees', employeeSchema, 'employees');
+const scheduleModel = model('schedules', scheduleSchema, 'schedules');
 
-module.exports = { clientSourceModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel, employeeModel };
+module.exports = { clientSourceModel, taxCategoryModel, paymentMethodModel, trainersModel, clientModel, employeeModel, scheduleModel };

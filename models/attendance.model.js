@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
 
 const clientAttendanceSchema = new Schema({
-    biometricId: {
+    clientId: {
         type: Number,
         required: true,
     },

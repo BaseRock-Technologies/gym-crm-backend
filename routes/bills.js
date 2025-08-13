@@ -257,7 +257,12 @@ router.post('/records', authenticate, async (req, res) => {
                 clientPicture: clientDetails.picture || '',
                 billType: bill.billType,
                 packageName: bill.packageName,
+                packagePrice: bill.packagePrice,
                 balanceAmount: bill.balanceAmount,
+                amountPayable: bill.amountPayable,
+                amountPaid: bill.amountPaid,
+                paymentMode: bill.paymentMode,
+                joiningDate: bill.joiningDate,
                 clientRepresentative: bill.clientRepresentative || '',
                 endDate: bill.endDate,
                 // Keep these for actions

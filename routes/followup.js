@@ -2,6 +2,7 @@ const express = require('express');
 const { authenticate } = require('../helper/auth');
 const { followupModel } = require('../models/followup.model');
 const { clientModel } = require('../models/others.model');
+const { clientMembershipModel } = require('../models/membership.model');
 
 const router = express.Router();
 
@@ -33,6 +34,8 @@ router.post('/create', authenticate, async (req, res) => {
         const followupData = {
             contactNumber: client?.contactNumber || data.contactNumber,
             clientName: client?.clientName || data.clientName,
+            clientId: client?.clientId,
+            clientCode: client?.clientCode,
             followupType: data.followupType,
             followupDate: data.followupDate,
             followupTime: data.followupTime,
@@ -40,7 +43,7 @@ router.post('/create', authenticate, async (req, res) => {
             status: 'pending',
             createdBy: req.headers.userName || '',
             createdAt: Math.floor(Date.now() / 1000),
-            updatedAt: Math.floor(Date.now() / 1000)
+            updatedAt: Math.floor(Date.now() / 1000),
         };
 
         await followupModel.create(followupData);
@@ -72,6 +75,16 @@ router.post('/records', authenticate, async (req, res) => {
             }
         });
 
+        // Handle date range
+        if (filters && filters['date-range']) {
+            const { from, to } = filters['date-range'];
+            cleanFilters.followupDate = {
+                $gte: new Date(from).getTime() / 1000,
+                $lte: new Date(to).getTime() / 1000
+            };
+            delete cleanFilters['date-range'];
+        }
+
         let searchQuery = cleanFilters;
 
         if (searchConfig && searchConfig.searchTerm && searchConfig.searchableColumns?.length) {
@@ -91,6 +104,14 @@ router.post('/records', authenticate, async (req, res) => {
         const validFields = Object.keys(followupModel.schema.paths);
         const finalQuery = {};
 
+
+        if (filters && filters.memberId) {
+            const client = await clientMembershipModel.findOne({ memberId: filters.memberId });
+            if (client) {
+                finalQuery.clientCode = client.clientCode;
+            }
+        }
+
         Object.entries(searchQuery).forEach(([key, value]) => {
             if (key === '$or') {
                 finalQuery.$or = value.filter(condition => {
@@ -109,7 +130,17 @@ router.post('/records', authenticate, async (req, res) => {
 
         const formattedFollowups = followups.map((followup, index) => ({
             sno: index + 1,
-            ...followup.toObject(),
+            id: followup._id,
+            clientName: followup.clientName,
+            clientId: followup.clientId,
+            contactNumber: followup.contactNumber,
+            followupType: followup.followupType,
+            followupDate: followup.followupDate,
+            followupTime: followup.followupTime,
+            feedback: followup.feedback,
+            createdBy: followup.createdBy,
+            createdAt: followup.createdAt,
+            status: followup.status,
         }));
 
         const total = await followupModel.countDocuments(finalQuery);

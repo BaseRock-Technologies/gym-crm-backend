@@ -19,6 +19,7 @@ const attendanceRouter = require('./routes/attendance');
 const clientFormRouter = require('./routes/client-form');
 const posRouter = require('./routes/pos');
 const productRouter = require('./routes/product');
+const schedulesRouter = require('./routes/schedules');
 
 const defaultRouter = require('./routes/default');
 
@@ -58,6 +59,7 @@ app.use('/client-form', clientFormRouter);
 app.use('/attendance', attendanceRouter);
 app.use('/pos', posRouter);
 app.use('/product', productRouter);
+app.use('/schedules', schedulesRouter);
 
 app.use('/default', defaultRouter);
 
